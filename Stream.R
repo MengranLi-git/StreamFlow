@@ -216,27 +216,6 @@ ggplot(Stream_map_year_stat[Year==1980], aes(long, lat)) +
   borders("state")# +
 #  facet_wrap(~Year)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ############################### Rridgeline ####################################
 Stream_plot[,Region:=as.factor(Region)][
   ,q0.999:= quantile(Q,0.999,na.rm = TRUE),by=Region][
