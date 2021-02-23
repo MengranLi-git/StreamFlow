@@ -12,51 +12,30 @@ rm()
 head()
 ############################### read data #####################################
 
-setwd("F:\\Extreme\\StreamFlow\\StreamFlow")
-gauge <- read.table("gauge_information.txt", header = FALSE)
+setwd("F:\\StreamFlow")
+
 load("Siteinfo.Rdata")
-# load("Stream.Rdata")
 load("Streamflow.Rdata")
 
+gauge <- read.table("gauge_information.txt", header = FALSE)
 names(gauge) <- gauge[1, ]
 gauge <- gauge[-1, ]
 
-{
-  # This parameter can not be changed
+Region_name <- read.table("Region_name.txt", header = FALSE, sep=",")
+names(Region_name) <- Region_name[1, ]
+Region_name <- Region_name[-1, ]
+
+# This parameter refers to streamflow dataset
   parameterCd <- "00060"
 
-  # Raw daily data:
-  # One site:
-  rawDailyData <- readNWISdv(
-    gauge[1, 2], parameterCd,
-    "1980-01-01", "2020-01-01"
-  )
-  rawDailyData2 <- readNWISDaily(
-    gauge[1, 2], parameterCd,
-    "1980-01-01", "2020-01-01"
-  )
-  
-  rawDailyData2[660:670,2]*3.281^3
-  rawDailyData[660:670,4]
-  
-  head(rawDailyData)
-  head(rawDailyData2)
-
-  # All sites
-
-  # dataRetrieval
-  filelist2 <- lapply(
-    gauge[, 2], readNWISdv, parameterCd,
-    "1980-01-01", "2020-01-01"
-  )
-
+{
   # EGRET
   Streamflow <- lapply(
     gauge[, 2], readNWISDaily, parameterCd,
     "1980-01-01", "2019-12-31"
   )
 
-  # site information from filelist2
+ # site information from filelist2
   siteInfo <- lapply(filelist2, attr, "siteInfo")
 
   names(siteInfo) <- paste0("S", gauge[, 2])
@@ -64,13 +43,9 @@ gauge <- gauge[-1, ]
   Siteinfo <- Reduce(function(x, y) merge(x, y, by = names(S14301000), all.x = T, all.y = T), siteInfo)
 
   # read site information directly by readNWISsite
-  site <- readNWISsite(gauge[, 2])
-
-  site2 <- readNWISInfo(gauge[, 2], "00060", interactive = FALSE)
-
-  # check units
-  printqUnitCheatSheet()
-}
+#  site <- readNWISsite(gauge[, 2])
+#  site2 <- readNWISInfo(gauge[, 2], "00060", interactive = FALSE)
+  }
 ############################### plot ##########################################
 
 for (i in 1:length(Streamflow)) {
@@ -81,10 +56,10 @@ for (i in 1:length(Streamflow)) {
 Stream <- rbindlist(Streamflow)[
   ,DecYear := floor(DecYear)] %>%
     filter(DecYear != 2020)
-
+rm(Streamflow)
 #head(Stream)
 
-Stream_plot <- Stream[, c("Q", "DecYear", "Month", "Region")]#[
+Stream_plot <- Stream[, c("Site", "Q", "DecYear", "Month", "Region")]#[
 #  , waterYear := as.factor(waterYear)
 #][
 #  , Month := as.factor(Month)
@@ -110,26 +85,6 @@ Stream_plot[,DecYear:=as.factor(DecYear)] %>%
   ggplot(aes(x = DecYear, y = Q, colour = Region)) +
   geom_boxplot() +
   facet_wrap(~Region)
-
-############### line (waste) ########################
-# line of month   ??? not clearly
-#ggplot(Stream_plot, aes(x = DecYear, y = Q, colour = Month, group = Month)) +
-#  geom_line() +
-#  facet_wrap(~Region)
-#Stream_Series <- Stream_plot[, mean(Q,na.rm = TRUE), 
-#                             by = .(DecYear, Month, Region)] 
-
-#Stream_Series[,Month:= as.factor(Month)] %>%
-#  ggplot(aes(x = DecYear, y = V1, colour = Month, group = Month)) +
-#  geom_line() +
-#  facet_wrap(~Region)
-
-# select a specific Region
-#Stream_plot["01"][,Month:= as.factor(Month)][
-#  , mean(Q, na.rm =TRUE), by = .(DecYear, Month)] %>%
-#  ggplot(aes(x = DecYear, y = V1, colour = Month, group = Month)) +
-#  geom_line()
-
 
 ############### Smooth ########################
 Stream_Series <- Stream_plot[, mean(Q, na.rm = TRUE), 
@@ -171,6 +126,8 @@ names(map_site) <- c("Site", "lat", "long")
 
 Stream_map_stat <- full_join(Stream_map, map_site, by = c("Site" = "Site"))
 
+Stream_map_stat[,mean_cen:=Mean-mean(Mean, na.rm = TRUE)]
+
 ############### map ################
 
 pal <- colorNumeric(
@@ -197,8 +154,12 @@ Stream_map_stat %>%
   addGraticule(interval = 20)
 
 # ggplot
-ggplot(Stream_map_stat, aes(long, lat)) +
-  geom_point(aes(color = q0.05), size = 7, alpha = 0.5) +
+
+plot(density(Stream_map_stat$Mean, na.rm=TRUE))
+
+Stream_map_stat[Mean<20]%>%
+ggplot(aes(long, lat)) +
+  geom_point(aes(color = Mean, size = 7, alpha = 0.5)) +
   scale_colour_gradient(low = "green", high = "red") +
   borders("state")
 
@@ -270,6 +231,20 @@ ggplot(Stream_map_year_stat[Year==1980], aes(long, lat)) +
 
 
 
+
+
+
+
+
+
+############################### Rridgeline ####################################
+Stream_plot[,Region:=as.factor(Region)][
+  ,q0.999:= quantile(Q,0.999,na.rm = TRUE),by=Region][
+    Q>q0.999
+  ] %>%
+  ggplot(aes(x=Q, y=Region, fill=Region)) +
+  geom_density_ridges()+
+  theme_ridges()
 
 
 
