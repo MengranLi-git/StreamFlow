@@ -1,0 +1,32 @@
+{
+    "id": "F13420EC",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1614184065331.0,
+    "source_on_save": false,
+    "relative_order": 7,
+    "properties": {
+        "expression": "Stream_summary_year",
+        "caption": "Stream_summary_year",
+        "totalObservations": 40,
+        "displayedObservations": 40,
+        "variables": 12,
+        "cacheKey": "9DE7D861",
+        "object": "Stream_summary_year",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=Stream_summary_year&cache_key=9DE7D861&max_cols=50",
+        "preview": 0
+    },
+    "folds": "",
+    "lastKnownWriteTime": 2964831133581193781,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1614184065331,
+    "read_only": false,
+    "read_only_alternatives": []
+}
