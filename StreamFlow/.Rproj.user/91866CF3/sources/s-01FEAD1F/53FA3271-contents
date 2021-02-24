@@ -198,6 +198,7 @@ Stream_map_full[Q > u][
   labs(title = "Mean Exceedance of 99.9% quantile")+
   borders("state")
 ```
+
 ### Left Tail
 
 ```{r}
@@ -219,23 +220,6 @@ Stream_map_full[Q > u][
   labs(title = "Mean Exceedance of 95% quantile")+
   borders("state")
 
-u <- Stream_summary[,q0.975]
-Stream_map_full[Q > u][
-  , MeanExceedance:=mean(Q-u, na.rm = TRUE), by=Site]%>%
-  ggplot(aes(long, lat)) +
-  geom_point(aes(color = MeanExceedance, size = 7, alpha = 0.7)) +
-  scale_colour_gradientn(colours = c("blue","green","yellow","orange","red")) +
-  labs(title = "Mean Exceedance of 97.5% quantile")+
-  borders("state")
-
-u <- Stream_summary[,q0.999]
-Stream_map_full[Q > u][
-  , MeanExceedance:=mean(Q-u, na.rm = TRUE), by=Site]%>%
-  ggplot(aes(long, lat)) +
-  geom_point(aes(color = MeanExceedance, size = 7, alpha = 0.7)) +
-  scale_colour_gradientn(colours = c("blue","green","yellow","orange","red")) +
-  labs(title = "Mean Exceedance of 99.9% quantile")+
-  borders("state")
 ```
 
 

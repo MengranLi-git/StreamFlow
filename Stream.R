@@ -157,12 +157,12 @@ Stream_map_stat %>%
 
 plot(density(Stream_map_stat$Mean, na.rm=TRUE))
 
-Stream_map_stat[Mean<20]%>%
+Stream_map_stat%>%
 ggplot(aes(long, lat)) +
-  geom_point(aes(color = Mean, size = 7, alpha = 0.5)) +
-  scale_colour_gradient(low = "green", high = "red") +
+  geom_point(aes(color = q0.05, size = 7, alpha = 0.7)) +
+  scale_colour_gradientn(colours = c("blue","green","yellow","orange","red")) +
   borders("state")
-
+?scale_colour_gradientn
 ggplot(Stream_map_stat, aes(long, lat)) +
   geom_point(aes(color = q0.1), size = 7, alpha = 0.5) +
   scale_colour_gradient(low = "green", high = "red") +
