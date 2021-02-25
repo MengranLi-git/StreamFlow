@@ -228,7 +228,6 @@ Hence,
 #### q0.7
 
 ```{r}
-rm()
 u <- Stream_summary[,q0.7]
 Stream_map_full[Q > u][
   , MeanExceedance:=mean(Q, na.rm = TRUE), by=Site]%>%
