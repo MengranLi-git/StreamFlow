@@ -12,6 +12,11 @@
   Note: This part is only the process we read the data at the first time. 
   
   All data cleaned are stored in Stream.Rdata. We will load Stream.Rdata directly instead of them.
+  
+  Due to the limitation of Github, Stream.Rdata can not be uploaded. Therefore I share it in OneDrive as this link.
+  https://gla-my.sharepoint.com/:u:/g/personal/2592713l_student_gla_ac_uk/EUr9-JfRzzZCqoaT3R8Cl88BSifU7cAC5mSXVMxYyaCa9A?e=xCsIlf
+  It will be updated if any change happens.
+  
 ## Stream.R  
   R code of this project
 ## EDA of Streamflow.pdf  
