@@ -1,0 +1,2 @@
+"0","Stream_plot <- Stream[, c(""Region"", ""Site"", ""DecYear"", ""Month"", ""Q"")]"
+"0","head(Stream_plot)"

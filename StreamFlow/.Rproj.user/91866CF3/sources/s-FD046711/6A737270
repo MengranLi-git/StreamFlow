@@ -3,15 +3,15 @@
     "path": "F:/StreamFlow/Stream.R",
     "project_path": null,
     "type": "r_source",
-    "hash": "3639819740",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1614016690126.0,
     "source_on_save": false,
     "relative_order": 2,
     "properties": {
-        "cursorPosition": "73,15",
-        "scrollLine": "60"
+        "cursorPosition": "80,11",
+        "scrollLine": "0"
     },
     "folds": "16|32|31|0|\n83|43|98|0|\n",
     "lastKnownWriteTime": 1614263469,

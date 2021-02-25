@@ -1,0 +1,5 @@
+"0","map_site <- Siteinfo[, c(""site_no"", ""dec_lat_va"", ""dec_lon_va"")]"
+"0","names(map_site) <- c(""Site"", ""lat"", ""long"")"
+"0",""
+"0","Stream_map_full <- full_join(Stream_plot, map_site, by = c(""Site"" = ""Site""))"
+"0","rm(Stream_plot)"

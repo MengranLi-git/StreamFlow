@@ -2,7 +2,7 @@
 title: "EDA of Streamflow Data"
 author: "Mengran Li"
 date: "2021/2/22"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -40,10 +40,15 @@ Region_name <- Region_name[-1, ]
 ```
 
 -  Delete data of 2020-01-01
+
 -  Add Site information into the dataset
+
 -  Round down the year, as DecYear is the original date transformed into decimal year.
+
    For instance, "1980-01-01" is 1980.000.
+   
 -  Transform the list as dataframe (a special data table).
+
 ```{r}
 for (i in 1:length(Streamflow)) {
   Streamflow[[i]]$Region <- gauge[i, 1]
@@ -53,17 +58,15 @@ for (i in 1:length(Streamflow)) {
 Stream <- rbindlist(Streamflow)[
   ,DecYear := floor(DecYear)][
     DecYear != 2020]
+rm(Streamflow)
 ```
 
 But I notice that there are some observations of Q below 0.
 Their qualifier is "A:e" (77W+), which means they are estimated by the USGS as the actual streamflow. It may be not proper to remove all the estimated values. I delete the negtive estimations (about 7000+), and remain the positive estimations as actual streamflow. If the treatment is not suitable or you have any other method, please let me know.
 
 
-
-
-
-
 Select variables we need.
+
 ```{r}
 Stream_plot <- Stream[, c("Region", "Site", "DecYear", "Month", "Q")]
 head(Stream_plot)
@@ -83,6 +86,7 @@ There are totally 9,559,629 observations.
 ### Distribution of all data for every year.
 
 #### All Regions
+
 ```{r, eval = FALSE}
 blank = rep(" ",4)
 label = c()
@@ -94,10 +98,11 @@ Stream_plot[,DecYear:=as.factor(DecYear)] %>%
     geom_boxplot()+
     scale_x_discrete(labels = label, breaks=1980:2019)
 ```
+This picture doesn't help much so I didn't run it here.
 
 #### Each region
 
-```{r, eval = FALSE}
+```{r}
 blank = rep(" ",9)
 label = c()
 for (i in 1:4){
@@ -110,7 +115,7 @@ Stream_plot[,DecYear:=as.factor(DecYear)] %>%
   facet_wrap(~Region)
 ```
 
-Rendering takes a so long time so that rmd doesn't work. I have saved the figure as Figure2.
+There is more precipitation on the left (17, 18), while little in the regions of 13,14, 15, 16.
 
 ### Trend detection of monthly data over years
 
@@ -129,7 +134,7 @@ H <- as.matrix(Stream_Series[,dpill(DecYear, V1), by = Month])
 Stream_Series_fit <- list()
 for (i in 1:12){
   data <- Stream_Series[Month==i]
-  Year <- data$DecYear
+  Year <- as.numeric(as.vector(data$DecYear))
   Q <- data$V1
   Stream_Series_fit[[i]] <- locpoly(Year, Q, bandwidth = H[i,2])
   Stream_Series_fit[[i]]$Month <- i
@@ -144,12 +149,12 @@ rbindlist(Stream_Series_fit)[
 ```
 
 
-However it looks messy. Given by the dry season and rainy season, it is possible to exist different trends among months. Thus I try to divide the months into two groups.
+However it looks messy. Given by the dry season and rainy season, it is possible to exist different trends among months. Thus I try to divide the months into two groups.3:5, 8:10
 
 ```{r}
 Season <- rbindlist(Stream_Series_fit)
-Season[which(Season$Month%in% c(3:5, 8:10)),"Group"] <- "A"
-Season[which(!Season$Month%in% c(3:5, 8:10)),"Group"] <- "B"
+Season[which(Season$Month %in% c(3:5,8:10)),"Group"] <- "A"
+Season[which(!Season$Month %in% c(3:5,8:10)),"Group"] <- "B"
 Season$Month <- factor(Season$Month, labels = month.abb)
 
 Season %>%
@@ -158,11 +163,25 @@ Season %>%
   labs(x = "Year", y = "Streamflow", title = "Grouped Trend of Monthly Streamflow")+
   facet_wrap(~Group)+
   coord_fixed(ratio=1)
-
+rm(Stream_Series_fit, Season)
 ```
 Group A contains Mar, Apr, May, Aug, Sep and Oct. They all looks stable.
 Group B includes the others, which fluctuate periodically.
 
+### Acf test
+
+```{r}
+Stream_Series_test <- spread(Stream_Series, key= "Month", value="V1")
+Stream_Series_test <- ts(Stream_Series_test[,-1], start=1980)
+
+par(mfrow=c(3,4))
+for(i in 1:12){
+  acf(Stream_Series_test[,i], main = paste0("Month",i))
+}
+rm(Stream_Series_test, Stream_Series, H, Q, Year)
+```
+
+The division is mostly supported by acf.
 
 ## Spatial EDA
 
@@ -197,8 +216,11 @@ Stream_map_full <- full_join(Stream_plot, map_site, by = c("Site" = "Site"))
 
 $$u=\hat{F}^{-1}(q)$$
 Hence,
+
 -  Assign $u=\hat{F}^{-1}(q)$
+
 -  Select $Q > u$ (right tail), $Q < u$ (left tail)
+
 -  Calculate mean of $Q$
 
 ### Right tail
@@ -206,6 +228,7 @@ Hence,
 #### q0.7
 
 ```{r}
+rm()
 u <- Stream_summary[,q0.7]
 Stream_map_full[Q > u][
   , MeanExceedance:=mean(Q, na.rm = TRUE), by=Site]%>%
@@ -321,3 +344,8 @@ Stream_map_full[Q < u][
   coord_fixed(ratio=1.5)
 ```
 
+
+
+## Spatial & Temporal EDA
+
+It's the most interesting part. But results can't be displayed in the pdf because of device supporting. I have put all the files into github [Streamflow](https://github.com/MengranLi-git/StreamFlow/tree/main/Plot).
