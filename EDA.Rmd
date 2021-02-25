@@ -2,7 +2,7 @@
 title: "EDA of Streamflow Data"
 author: "Mengran Li"
 date: "2021/2/22"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
