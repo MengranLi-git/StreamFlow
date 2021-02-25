@@ -3,7 +3,7 @@
 ## Data_Acqusition
   gauge_information.txt: 671 catchments huc ID in American (We call them as site following)
   
-  Region_name.txt: Unit name each site belongs to
+  Region_name.txt: Region name each site belongs to
   
   Siteinfo.Rdata: site information obtained
   
