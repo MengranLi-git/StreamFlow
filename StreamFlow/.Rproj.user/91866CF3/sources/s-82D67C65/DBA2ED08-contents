@@ -1,0 +1,21 @@
+library(gganimate)
+library(ggrepel)
+
+library(gapminder)
+u <- Stream_summary[,q0.99]
+P <- Stream_map_full[Q > u][
+  , MeanExceedance:=mean(Q, na.rm = TRUE), by=.(Site, DecYear)] %>% 
+  ggplot(aes(long, lat)) + 
+  geom_point(mapping=aes(color = MeanExceedance, alpha = I(0.5), size = I(3))) + 
+  labs(title = 'Mean Exceedance of 99% Quantile over 1980-2019',
+       subtitle = 'Year:{current_frame}', 
+       color = 'Mean Exceedance',
+       y = "Lat",
+       x = "Long") + 
+  scale_colour_gradientn(colours = c("purple", "skyblue","green","yellow","orange","red")) +
+  borders("state")+
+  coord_fixed(ratio=1.5)+
+  transition_manual(DecYear) + 
+  ease_aes('linear')
+animate(P, nframes = 40, device = "png",
+        renderer = file_renderer("~/gganim", prefix = "gganim_plot", overwrite = FALSE))
