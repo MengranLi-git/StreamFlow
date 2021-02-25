@@ -1,5 +1,17 @@
 # StreamFlow
 
+## Data_Acqusition
+  gauge_information.txt: 671 catchments huc ID in American (We call them as site following)
+  
+  Region_name.txt: Unit name each site belongs to
+  
+  Siteinfo.Rdata: site information obtained
+  
+  Streamflow: Daily Streamflow data of 671 sites during 1980-2019 obtained.
+  
+  Note: This part is only the process we first read data. 
+  
+  All data cleaned are stored in Stream.Rdata. We will not use this part while loading Stream.Rdata directly.
 ## Stream.R  
   R code of this project
 ## EDA of Streamflow.pdf  
@@ -7,6 +19,10 @@
 ## StreamFlow\plot
   All plots in this project
   ### Temporal EDA
+  Boxplot.png: Boxplot of streamflow over 40 years.
+  
+  Boxplot_Region: Boxplot, whose facet is region
+  
   Trend_Month.png: The trend of each month
   
   Grouped_Trend.png： The trend of each group. The first group contais of 3, 4, 5, 8, 9, 10.
