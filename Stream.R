@@ -4,6 +4,7 @@ library(tidyverse)
 library(KernSmooth)
 library(leaflet)
 library(maps)
+library(gganimate)
 ############################### read data #####################################
 setwd("F:\\StreamFlow")
 load("Stream.Rdata")
@@ -67,6 +68,19 @@ Season %>%
   coord_fixed(ratio=1)
 
 head(Stream_minus)
+
+############## Adf test ################
+
+Stream_Series_test <- spread(Stream_Series, key= "Month", value="V1")
+
+Stream_Series_test <- ts(Stream_Series_test[,-1], start=1980)
+
+for(i in 1:12){
+  png(file = paste0("Acf_Month",i,".png")) ## 画图程序
+  acf(Stream_Series_test[,i], main = paste0("Acf_Month",i))
+  dev.off()
+}
+
 ############################### statistics ##########################
 Stream_summary <-  Stream[, .(
   mean(Q, na.rm = TRUE), 
@@ -90,6 +104,16 @@ names(map_site) <- c("Site", "lat", "long")
 Stream_map_full <- full_join(Stream_plot, map_site, by = c("Site" = "Site"))
 
 ############### Right tail ################
+u <- Stream_summary[,q0.7]
+Stream_map_full[Q > u][
+  , MeanExceedance:=mean(Q, na.rm = TRUE), by=Site]%>%
+  ggplot(aes(long, lat)) +
+  geom_point(aes(color = MeanExceedance, size = I(4), alpha = I(0.5))) +
+  scale_colour_gradientn(colours = c("purple", "skyblue","green","yellow","orange","red")) +
+  labs(title = "Mean Exceedance of 90% quantile")+
+  borders("state")+
+  coord_fixed(ratio=1.5)
+
 u <- Stream_summary[,q0.9]
 Stream_map_full[Q > u][
   , MeanExceedance:=mean(Q, na.rm = TRUE), by=Site]%>%
@@ -261,14 +285,15 @@ P <- Stream_map_Year[Q > u][
   ease_aes('linear')
 animate(P, fps=2.5)
 
-u <- Stream_summary_year[,c("DecYear", "q0.05")]
+u <- Stream_summary_year[,c("DecYear", "q0.7")]
 names(u)[2] <- "u"
 Stream_map_Year <- full_join(Stream_map_full, u, by = c("DecYear" = "DecYear"))
-P <- Stream_map_Year[Q < u][
-  , MeanExceedance:=mean(Q-u, na.rm = TRUE), by=.(Site, DecYear)] %>% 
+Plot_matrix <- Stream_map_Year[Q > u][
+  , MeanExceedance:=mean(Q, na.rm = TRUE), by=.(Site, DecYear)]
+P <- Plot_matrix%>% 
   ggplot(aes(long, lat)) + 
   geom_point(mapping=aes(color = MeanExceedance, alpha = I(0.5), size = I(3))) + 
-  labs(title = 'Mean Exceedance of 5% Quantile over 1980-2019',
+  labs(title = 'Mean Exceedance of 70% Quantile over 1980-2019',
        subtitle = 'Year:{current_frame}', 
        color = 'Mean Exceedance',
        y = "Lat",
@@ -284,7 +309,7 @@ u <- Stream_summary_year[,c("DecYear", "q0.1")]
 names(u)[2] <- "u"
 Stream_map_Year <- full_join(Stream_map_full, u, by = c("DecYear" = "DecYear"))
 P <- Stream_map_Year[Q < u][
-  , MeanExceedance:=mean(Q-u, na.rm = TRUE), by=.(Site, DecYear)] %>% 
+  , MeanExceedance:=mean(Q, na.rm = TRUE), by=.(Site, DecYear)] %>% 
   ggplot(aes(long, lat)) + 
   geom_point(mapping=aes(color = MeanExceedance, alpha = I(0.5), size = I(3))) + 
   labs(title = 'Mean Exceedance of 10% Quantile over 1980-2019',

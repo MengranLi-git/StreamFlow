@@ -144,12 +144,12 @@ rbindlist(Stream_Series_fit)[
 ```
 
 
-However it looks messy. Given by the dry season and rainy season, it is possible to exist different trends among months. Thus I try to divide the months into two groups.
+However it looks messy. Given by the dry season and rainy season, it is possible to exist different trends among months. Thus I try to divide the months into two groups.3:5, 8:10
 
 ```{r}
 Season <- rbindlist(Stream_Series_fit)
-Season[which(Season$Month%in% c(3:5, 8:10)),"Group"] <- "A"
-Season[which(!Season$Month%in% c(3:5, 8:10)),"Group"] <- "B"
+Season[which(Season$Month %in% c(3:5,8:10)),"Group"] <- "A"
+Season[which(!Season$Month %in% c(3:5,8:10)),"Group"] <- "B"
 Season$Month <- factor(Season$Month, labels = month.abb)
 
 Season %>%
@@ -158,11 +158,24 @@ Season %>%
   labs(x = "Year", y = "Streamflow", title = "Grouped Trend of Monthly Streamflow")+
   facet_wrap(~Group)+
   coord_fixed(ratio=1)
-
 ```
 Group A contains Mar, Apr, May, Aug, Sep and Oct. They all looks stable.
 Group B includes the others, which fluctuate periodically.
 
+### Acf test
+
+```{r}
+Stream_Series_test <- spread(Stream_Series, key= "Month", value="V1")
+Stream_Series_test <- ts(Stream_Series_test[,-1], start=1980)
+
+par(mfrow=c(3,4))
+for(i in 1:12){
+  acf(Stream_Series_test[,i], main = paste0("Month",i))
+}
+
+```
+
+The division is mostly supported by acf.
 
 ## Spatial EDA
 

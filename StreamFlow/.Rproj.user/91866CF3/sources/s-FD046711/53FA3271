@@ -5,23 +5,23 @@
     "type": "r_markdown",
     "hash": "0",
     "contents": "",
-    "dirty": true,
+    "dirty": false,
     "created": 1614113489381.0,
     "source_on_save": false,
     "relative_order": 4,
     "properties": {
         "tempName": "Untitled2",
-        "cursorPosition": "4,11",
-        "scrollLine": "0",
+        "cursorPosition": "168,7",
+        "scrollLine": "161",
         "last_setup_crc32": "FD046711bb338d19",
         "source_window_id": ""
     },
-    "folds": "11|19|79|0|\n168|32|194|0|\n195|19|202|0|\n205|9|218|0|\n219|9|232|0|\n233|10|246|0|\n247|11|261|0|\n262|9|278|0|\n281|9|294|0|\n295|9|308|0|\n309|10|323|0|\n",
+    "folds": "11|19|79|0|\n84|16|96|0|\n179|14|336|0|\n181|32|207|0|\n208|19|215|0|\n218|9|231|0|\n232|9|245|0|\n246|10|259|0|\n260|11|274|0|\n275|9|291|0|\n294|9|307|0|\n308|9|321|0|\n322|10|336|0|\n",
     "lastKnownWriteTime": 1614258021,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1614258035636,
+    "last_content_update": 1614262749112,
     "read_only": false,
     "read_only_alternatives": []
 }

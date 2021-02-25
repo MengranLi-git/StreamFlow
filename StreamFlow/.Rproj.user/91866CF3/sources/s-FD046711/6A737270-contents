@@ -68,6 +68,19 @@ Season %>%
   coord_fixed(ratio=1)
 
 head(Stream_minus)
+
+############## Adf test ################
+
+Stream_Series_test <- spread(Stream_Series, key= "Month", value="V1")
+
+Stream_Series_test <- ts(Stream_Series_test[,-1], start=1980)
+
+for(i in 1:12){
+  png(file = paste0("Acf_Month",i,".png")) ## 画图程序
+  acf(Stream_Series_test[,i], main = paste0("Acf_Month",i))
+  dev.off()
+}
+
 ############################### statistics ##########################
 Stream_summary <-  Stream[, .(
   mean(Q, na.rm = TRUE), 
