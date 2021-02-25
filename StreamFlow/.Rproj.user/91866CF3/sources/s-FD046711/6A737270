@@ -3,22 +3,22 @@
     "path": "F:/StreamFlow/Stream.R",
     "project_path": null,
     "type": "r_source",
-    "hash": "775262680",
+    "hash": "0",
     "contents": "",
-    "dirty": false,
+    "dirty": true,
     "created": 1614016690126.0,
     "source_on_save": false,
     "relative_order": 2,
     "properties": {
-        "cursorPosition": "270,36",
-        "scrollLine": "258"
+        "cursorPosition": "294,0",
+        "scrollLine": "273"
     },
-    "folds": "",
+    "folds": "16|32|31|0|\n32|23|54|0|\n55|27|69|18|\n",
     "lastKnownWriteTime": 1614217575,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1614218660620,
+    "last_content_update": 1614243164849,
     "read_only": false,
     "read_only_alternatives": []
 }
