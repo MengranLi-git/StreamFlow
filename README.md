@@ -11,7 +11,7 @@
   
   Note: This part is only the process we read the data at the first time. 
   
-  All data cleaned are stored in Stream.Rdata. We will not use this part instead of loading Stream.Rdata directly.
+  All data cleaned are stored in Stream.Rdata. We will load Stream.Rdata directly instead of them.
 ## Stream.R  
   R code of this project
 ## EDA of Streamflow.pdf  
