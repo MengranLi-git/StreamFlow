@@ -123,7 +123,6 @@ Stream_Series
 Smooth the lines with $locpoly()$
 
 ```{r}
-
 H <- as.matrix(Stream_Series[,dpill(DecYear, V1), by = Month])
 
 Stream_Series_fit <- list()
