@@ -16,6 +16,7 @@
   \StreamFlow\plot\MeanExceedance: Mean Exceedance of each quantile, 0.05, 0.1, 0.2, 0.7, 0.9, 0.95, 0.975, 0.99
   ### Spatial & Temporal EDA
   \StreamFlow\plot\MeanExceedance_Year: 
+  
   MeanExceedance_Year_q.gif: Mean Exceedance of q quantile over 1980-2019.
   
   \StreamFlow\plot\MeanExceedance_Year\MeanExceedance_Year_q: plots of each year during 1980-2019.
