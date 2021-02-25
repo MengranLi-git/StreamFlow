@@ -1,0 +1,6 @@
+"0","for (i in 1:length(Streamflow)) {"
+"0","  Streamflow[[i]]$Region <- gauge[i, 1]"
+"0","  Streamflow[[i]]$Site <- gauge[i, 2]"
+"0","}"
+"2","Error in length(Streamflow) : 找不到对象'Streamflow'
+"

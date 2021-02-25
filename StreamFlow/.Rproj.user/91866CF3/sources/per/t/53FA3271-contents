@@ -1,0 +1,273 @@
+---
+title: "EDA of Streamflow Data"
+author: "Mengran Li"
+date: "2021/2/22"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data preparation
+
+library packages we need.
+```{r}
+# Big data processing
+library(data.table)
+# ggplot, dplyr, etc.
+library(tidyverse)
+# Smooth
+library(KernSmooth)
+# Map
+library(maps)
+# Animated Graphics
+library(gganimate)
+```
+
+Load data.
+```{r}
+load("Siteinfo.Rdata")
+load("Streamflow.Rdata")
+
+gauge <- read.table("gauge_information.txt", header = FALSE)
+names(gauge) <- gauge[1, ]
+gauge <- gauge[-1, ]
+
+Region_name <- read.table("Region_name.txt", header = FALSE, sep=",")
+names(Region_name) <- Region_name[1, ]
+Region_name <- Region_name[-1, ]
+```
+
+-  Delete data of 2020-01-01
+-  Add Site information into the dataset
+-  Round down the year, as DecYear is the original date transformed into decimal year.
+   For instance, "1980-01-01" is 1980.000.
+-  Transform the list as dataframe (a special data table).
+```{r}
+for (i in 1:length(Streamflow)) {
+  Streamflow[[i]]$Region <- gauge[i, 1]
+  Streamflow[[i]]$Site <- gauge[i, 2]
+}
+
+Stream <- rbindlist(Streamflow)[
+  ,DecYear := floor(DecYear)][
+    DecYear != 2020]
+```
+
+But I notice that there are some observations of Q below 0.
+Their qualifier is "A:e" (77W+), which means they are estimated by the USGS as the actual streamflow. It may be not proper to remove all the estimated values. I delete the negtive estimations (about 7000+), and remain the positive estimations as actual streamflow. If the treatment is not suitable or you have any other method, please let me know.
+
+
+
+
+
+
+Select variables we need.
+```{r}
+Stream_plot <- Stream[, c("Region", "Site", "DecYear", "Month", "Q")]
+head(Stream_plot)
+```
+
+List of Variables:
+
+|Region|Site|DecYear|Month|Q|
+|:---:|:---:|:---:|:---:|:---:|
+|Hydrology Region|Observation Site|Calendar Year|Month|Daily Streamflow|
+|18 Regions|671 Sites|1980-2019,40 years|Jan-Dec,12 months|$m^3/s$|
+
+There are totally 9,559,629 observations.
+
+## Temporal EDA
+
+### Distribution of all data for every year.
+
+#### All Regions
+```{r, eval = FALSE}
+blank = rep(" ",4)
+label = c()
+for (i in 1:8){
+  label = c(label, 1980 + 5* (i-1), blank)
+}
+Stream_plot[,DecYear:=as.factor(DecYear)] %>%
+  ggplot(aes(x = DecYear, y = Q)) +
+    geom_boxplot()+
+    scale_x_discrete(labels = label, breaks=1980:2019)
+```
+
+#### Each region
+
+```{r, eval = FALSE}
+blank = rep(" ",9)
+label = c()
+for (i in 1:4){
+  label = c(label, 1980 + 10* (i-1), blank)
+}
+Stream_plot[,DecYear:=as.factor(DecYear)] %>%
+  ggplot(aes(x = DecYear, y = Q, colour = Region)) +
+  geom_boxplot() +
+  scale_x_discrete(labels = label, breaks=1980:2019)+
+  facet_wrap(~Region)
+```
+
+Rendering takes a so long time so that rmd doesn't work. I have saved the figure as Figure2.
+
+### Trend detection of monthly data over years
+
+```{r}
+Stream_Series <- Stream_plot[, mean(Q, na.rm = TRUE), 
+                             by = .(DecYear, Month)] 
+Stream_Series
+```
+
+Smooth the lines with $locpoly()$
+
+```{r}
+
+H <- as.matrix(Stream_Series[,dpill(DecYear, V1), by = Month])
+
+Stream_Series_fit <- list()
+for (i in 1:12){
+  data <- Stream_Series[Month==i]
+  Year <- data$DecYear
+  Q <- data$V1
+  Stream_Series_fit[[i]] <- locpoly(Year, Q, bandwidth = H[i,2])
+  Stream_Series_fit[[i]]$Month <- i
+}
+
+rbindlist(Stream_Series_fit)[
+  ,Month:=factor(Month, labels = month.abb)] %>%
+  ggplot(aes(x=x,y=y,group=Month,colour=Month))+
+  geom_line()+
+  labs(x = "Year", y = "Streamflow", title = "Trend of Monthly Streamflow")+
+  coord_fixed(ratio=1)
+```
+
+
+However it looks messy. Given by the dry season and rainy season, it is possible to exist different trends among months. Thus I try to divide the months into two groups.
+
+```{r}
+Season <- rbindlist(Stream_Series_fit)
+Season[which(Season$Month%in% c(3:5, 8:10)),"Group"] <- "A"
+Season[which(!Season$Month%in% c(3:5, 8:10)),"Group"] <- "B"
+Season$Month <- factor(Season$Month, labels = month.abb)
+
+Season %>%
+  ggplot(aes(x=x,y=y))+
+  geom_line(aes(group=Month,colour=Month))+
+  labs(x = "Year", y = "Streamflow", title = "Grouped Trend of Monthly Streamflow")+
+  facet_wrap(~Group)+
+  coord_fixed(ratio=1)
+
+```
+Group A contains Mar, Apr, May, Aug, Sep and Oct. They all looks stable.
+Group B includes the others, which fluctuate periodically.
+
+
+## Spatial EDA
+
+### Statistics for all locations
+
+```{r}
+Stream_summary <-  Stream[, .(
+  mean(Q, na.rm = TRUE), 
+  sd(Q, na.rm = TRUE),
+  quantile(Q, 0.05, na.rm = TRUE),
+  quantile(Q, 0.1, na.rm = TRUE),
+  quantile(Q, 0.2, na.rm = TRUE),
+  quantile(Q, 0.5, na.rm = TRUE),
+  quantile(Q, 0.7, na.rm = TRUE),
+  quantile(Q, 0.9, na.rm = TRUE),
+  quantile(Q, 0.95, na.rm = TRUE),
+  quantile(Q, 0.975, na.rm = TRUE),
+  quantile(Q, 0.99, na.rm = TRUE))]
+names(Stream_summary) <- c("Mean", "Sd",
+                       paste0("q", c(0.05, 0.1, 0.2, 0.5, 0.7, 0.9, 0.95, 0.975, 0.99)))
+Stream_summary
+```
+
+```{r}
+map_site <- Siteinfo[, c("site_no", "dec_lat_va", "dec_lon_va")]
+names(map_site) <- c("Site", "lat", "long")
+
+Stream_map_full <- full_join(Stream_plot, map_site, by = c("Site" = "Site"))
+```
+
+### Mean Exceedance
+
+$$u=\hat{F}^{-1}(q)$$
+Hence,
+-  Assign $u=\hat{F}^{-1}(q)$
+-  Select $Q > u$ (right tail), $Q < u$ (left tail)
+-  Calculate mean of $Q$
+
+### Right tail
+
+```{r}
+u <- Stream_summary[,q0.9]
+Stream_map_full[Q > u][
+  , MeanExceedance:=mean(Q, na.rm = TRUE), by=Site]%>%
+  ggplot(aes(long, lat)) +
+  geom_point(aes(color = MeanExceedance, size = I(4), alpha = I(0.5))) +
+  scale_colour_gradientn(colours = c("purple", "skyblue","green","yellow","orange","red")) +
+  labs(title = "Mean Exceedance of 90% quantile")+
+  borders("state")+
+  coord_fixed(ratio=1.5)
+
+u <- Stream_summary[,q0.95]
+Stream_map_full[Q > u][
+  , MeanExceedance:=mean(Q, na.rm = TRUE), by=Site]%>%
+  ggplot(aes(long, lat)) +
+  geom_point(aes(color = MeanExceedance, size = I(4), alpha = I(0.5))) +
+  scale_colour_gradientn(colours = c("purple", "skyblue","green","yellow","orange","red")) +
+  labs(title = "Mean Exceedance of 95% quantile")+
+  borders("state")+
+  coord_fixed(ratio=1.5)
+
+u <- Stream_summary[,q0.975]
+Stream_map_full[Q > u][
+  , MeanExceedance:=mean(Q, na.rm = TRUE), by=Site]%>%
+  ggplot(aes(long, lat)) +
+  geom_point(aes(color = MeanExceedance, size = I(4), alpha = I(0.5))) +
+  scale_colour_gradientn(colours = c("purple", "skyblue","green","yellow","orange","red")) +
+  labs(title = "Mean Exceedance of 97.5% quantile")+
+  borders("state")+
+  coord_fixed(ratio=1.5)
+
+u <- Stream_summary[,q0.99]
+Stream_map_full[Q > u][
+  , MeanExceedance:=mean(Q, na.rm = TRUE), by=.(Site, DecYear)]%>%
+  ggplot(aes(long, lat)) +
+  geom_point(aes(color = MeanExceedance, size = I(4), alpha = I(0.5))) +
+  scale_colour_gradientn(colours = c("purple", "skyblue","green","yellow","orange","red")) +
+  labs(title = "Mean Exceedance of 99% quantile")+
+  borders("state")+
+  coord_fixed(ratio=1.5)
+```
+
+### Left Tail
+
+```{r}
+u <- Stream_summary[,q0.1]
+Stream_map_full[Q < u][
+  , MeanExceedance:=mean(Q, na.rm = TRUE), by=Site]%>%
+  ggplot(aes(long, lat)) +
+  geom_point(aes(color = MeanExceedance, size = I(4), alpha = I(0.5))) +
+  scale_colour_gradientn(colours = c("purple", "skyblue","green","yellow","orange","red")) +
+  labs(title = "Mean Exceedance of 10% quantile")+
+  borders("state")+
+  coord_fixed(ratio=1.5)
+
+u <- Stream_summary[,q0.05]
+Stream_map_full[Q < u][
+  , MeanExceedance:=mean(Q, na.rm = TRUE), by=Site]%>%
+  ggplot(aes(long, lat)) +
+  geom_point(aes(color = MeanExceedance, size = I(4), alpha = I(0.5))) +
+  scale_colour_gradientn(colours = c("purple", "skyblue","green","yellow","orange","red")) +
+  labs(title = "Mean Exceedance of 5% quantile")+
+  borders("state")+
+  coord_fixed(ratio=1.5)
+```
+
+
+

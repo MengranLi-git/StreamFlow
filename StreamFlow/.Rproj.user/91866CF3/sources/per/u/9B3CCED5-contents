@@ -1,0 +1,32 @@
+Stream_Series <- Stream_plot[, mean(Q, na.rm = TRUE), 
+                             by = .(DecYear, Month)] 
+
+H <- as.matrix(Stream_Series[,dpill(DecYear, V1), by = Month])
+
+Stream_Series_fit <- list()
+for (i in 1:12){
+  data <- Stream_Series[Month==i]
+  Year <- data$DecYear
+  Q <- data$V1
+  Stream_Series_fit[[i]] <- locpoly(Year, Q, bandwidth = H[i,2])
+  Stream_Series_fit[[i]]$Month <- i
+}
+rm(data, H, i, Q)
+ 
+Season <- rbindlist(Stream_Series_fit)
+  Season[which(Season$Month%in% c(8:10)),"Sea"] <- "A"
+  Season[which(!Season$Month%in% c(8:10),"Sea"] <- "B"
+  Season$Month <- factor(Season$Month, labels = month.abb)
+
+  Season %>%
+  ggplot(aes(x=x,y=y))+
+  geom_line(aes(group=Month,colour=Month))+
+  labs(x = "Year", y = "Streamflow", title = "Trend of Monthly Streamflow")+
+  facet_wrap(~Sea)+
+    coord_fixed(ratio=1)
+
+  
+  
+  
+  
+  

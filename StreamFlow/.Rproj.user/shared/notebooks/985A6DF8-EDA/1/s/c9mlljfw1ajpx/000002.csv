@@ -16,5 +16,5 @@
 "0","  ,Month:=factor(Month, labels = month.abb)] %>%"
 "0","  ggplot(aes(x=x,y=y,group=Month,colour=Month))+"
 "0","  geom_line()+"
-"0","  xlab(""Year"")+"
-"0","  ylab(""Trend of Monthly Streamflow"")"
+"0","  labs(x = ""Year"", y = ""Streamflow"", title = ""Trend of Monthly Streamflow"")+"
+"0","  coord_fixed(ratio=1)"
