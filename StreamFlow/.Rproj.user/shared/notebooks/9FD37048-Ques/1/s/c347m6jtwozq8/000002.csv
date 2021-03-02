@@ -1,6 +1,0 @@
-"0","Stream <- Stream[Q >= 0]"
-"0","Stream_plot <- Stream[, c(""Site"", ""Q"", ""DecYear"", ""Month"", ""Region"")]"
-"0","setkey(Stream_plot, Region)"
-"0","Stream_mean <- Stream_plot[, mean(Q), by = Region]"
-"0","names(Stream_mean) <- c(""huc2"", ""mean"")"
-"0","rm(Stream, Stream_plot)"
