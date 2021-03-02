@@ -1,0 +1,62 @@
+---
+title: "Untitled"
+author: "Mengran Li"
+date: "2021/3/1"
+output: html_document
+
+---
+
+## Questions in the note
+
+###  <font size="5"> Do we have data for almost every day within the months?</font>
+
+<font size="4">There is $40\times365=14600$ days. Therefore we should have $671\times14600=9796600$ observations. Acturally we have $9559629$ observations, in the condition of deleting some data. The propotion is $9559629/9796600\times100\%=97.58\%$, which is acceptable in my view.</font>
+
+###  <font size="5"> Are there fewer rivers/stream in the plateau area?</font>
+
+```{r, echo = FALSE, message = FALSE}
+library(tidyverse)
+library(leaflet)
+setwd("F:\\StreamFlow")
+load("Stream.Rdata")
+
+```
+
+```{r, echo = FALSE}
+GetURL <- function(service, host = "basemap.nationalmap.gov") {
+  sprintf("https://%s/arcgis/services/%s/MapServer/WmsServer", host, service)
+}
+Siteinfo %>%
+  leaflet() %>%
+  addTiles() %>%
+  addCircleMarkers(
+    lng = ~dec_lon_va,
+    lat = ~dec_lat_va,
+    radius = ~3,
+    stroke = FALSE,
+    fill = TRUE,
+    color = "red",
+    fillOpacity = 0.4,
+    group = "Site"
+  )%>%
+    addCircleMarkers(
+    lng = ~dec_lon_va,
+    lat = ~dec_lat_va,
+    radius = ~1,
+    stroke = FALSE,
+    fill = TRUE,
+    fillOpacity = 0,
+    group = "No Site"
+  )%>%
+  addWMSTiles(GetURL("USGSHydroCached"),layers = "0")%>%
+  addLayersControl(
+          overlayGroups =c("Site", "No Site"),
+          options = layersControlOptions(collapsed=FALSE)
+          )
+  
+```
+<font size="4">
+The base plot is from USGS, [Hydro-NHD - A base map that highlights hydrographic and NHD features](https://waterdata.usgs.gov/blog/basemaps/).
+It is obvious that there are fewer both rivers and observation sites in the plateau area. Click on the button, you can see the river map with/ without observation sites.</font>
+
+

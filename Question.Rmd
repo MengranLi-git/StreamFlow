@@ -1,0 +1,35 @@
+---
+title: "Untitled"
+author: "Mengran Li"
+date: "2021/3/1"
+output: pdf_document
+---
+
+-  Do we have data for almost every day within the months?
+
+There is $40\times365=14600$ days. Therefore we should have $671\times14600=9796600$ observations. Acturally we have $9559629$ observations, in the condition of deleting some data. The propotion is $9559629/9796600\times100\%=97.58\%$, which is acceptable in my view.
+
+
+
+```{r, echo = FALSE}
+library(tidyverse)
+library(leaflet)
+setwd("F:\\StreamFlow")
+load("Stream.Rdata")
+Siteinfo %>%
+  leaflet() %>%
+  addTiles() %>%
+  addCircleMarkers(
+    lng = ~dec_lon_va,
+    lat = ~dec_lat_va,
+    radius = ~5,
+    stroke = FALSE,
+    fill = TRUE,
+    fillOpacity = 0.4
+  )%>%
+  addProviderTiles("Esri.NatGeoWorldMap")
+```
+
+-  Check documentation from USGS water resources.
+
+I think it would be better to 

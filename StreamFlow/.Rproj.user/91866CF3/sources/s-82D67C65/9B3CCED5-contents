@@ -1,9 +1,0 @@
-Stream_Series <- Stream_plot[, mean(Q, na.rm = TRUE), 
-                             by = .(DecYear, Month)] 
-Tim <- Stream_Series[, Month:= rep(month.abb,40)]
-%>%
-  Tim %>%     spread(key="Month", value="V1")
-  
-  
-  
-  
