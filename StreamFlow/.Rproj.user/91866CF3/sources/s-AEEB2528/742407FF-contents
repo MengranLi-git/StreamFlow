@@ -20,7 +20,6 @@ library(tidyverse)
 library(KernSmooth)
 library(leaflet)
 library(maps)
-library(gganimate)
 ```
 
 ```{r, echo=FALSE}
@@ -36,25 +35,25 @@ setkey(Stream_plot, Region)
 
 I have written a web map [https://gla-my.sharepoint.com/:u:/g/personal/2592713l_student_gla_ac_uk/EevYgJRRfHVOjcxnTMft8UwBplq8Ch1tAJXk4W-THV6tug?e=2dfM0s](https://gla-my.sharepoint.com/:u:/g/personal/2592713l_student_gla_ac_uk/EevYgJRRfHVOjcxnTMft8UwBplq8Ch1tAJXk4W-THV6tug?e=2dfM0s).
 
-My conclusion is, rivers in the platau area is really fewer, which may also cause the shortage of observations here. As what I saw in the UCGS with full observations, there is same distribution in this area. 
+My conclusion is, rivers in the plateau area are really fewer, which may also cause the shortage of observations here. As I saw in the UCGS with full observations, there is the same distribution in this area. 
 
-I think another reasonable interpretation that we see fewer dots in the area in higher quantile maps is, the Q values here are smaller than other area so that when we select threshold, almost none is left (while smaller quantiles opposite).
+I think another reasonable interpretation that we see fewer dots in the area in higher quantile maps is, the Q values here are smaller than other areas so that when we select threshold, almost none is left (while smaller quantiles opposite).
 
 My question is, whether we need to add some observations here. If we do, however, how can we choose sites added and how to explain the reason.
 
-Given by the geographical features, I have some thoughts. 
+Given the geographical features, I have some thoughts. 
 
 -  Bivariate extreme model
 
--  Another possible division about region (Streamflow feature, Climate, etc.), I mean, more close to graph we draw.
+-  Another possible division about regions (Streamflow feature, Climate, etc.), I mean, more close to graphs we draw.
 
 -  Maybe establish a function of distance (not sure)
 
 ### Season
 
-My former thought is to divide the months into two season based on graph, one of which is stable and another fluctuates periodically, so that we can explore their period effect or whether they have some relationship further. But now I gave up the idea. US has almost all types of climate, thus there are complex precipitation situation in different regions. 
+My former thought is to divide the months into two seasons based on the graph, one of which is stable and another fluctuates periodically, so that we can explore their period effect or whether they have some relationship further. But now I gave up the idea. The US has almost all types of climate, thus there are complex precipitation situations in different regions. 
 
-However, I notice that their changing in precipitation usually can be  described by unit of season because of monsoon and atmospheric pressure. Precipitation would bring important influence on streamflow. Therefore, I think we may can explore the trend of seasons.
+However, I notice that their changes in precipitation usually can be described by a unit of season because of monsoon and atmospheric pressure. Precipitation would bring an important influence on streamflow. Therefore, I think we can explore the trend of seasons.
 
 I divide the months into seasons by The official travel site of the USA [https://www.visittheusa.co.uk/info/weather-seasons](https://www.visittheusa.co.uk/info/weather-seasons)
 
