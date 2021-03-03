@@ -34,7 +34,7 @@ setkey(Stream_plot, Region)
 
 ### Are there fewer locations or rivers/ stream in the platau area? & Common geographical features?
 
-I have written a web map [https://gla-my.sharepoint.com/:u:/g/personal/2592713l_student_gla_ac_uk/ET9gm5bLFjZAn2_Oxiu1s3UBeFYVbDnzWFMC44nH-l8GWg?e=QWzD1u](https://gla-my.sharepoint.com/:u:/g/personal/2592713l_student_gla_ac_uk/ET9gm5bLFjZAn2_Oxiu1s3UBeFYVbDnzWFMC44nH-l8GWg?e=QWzD1u).
+I have written a web map [https://gla-my.sharepoint.com/:u:/g/personal/2592713l_student_gla_ac_uk/EevYgJRRfHVOjcxnTMft8UwBplq8Ch1tAJXk4W-THV6tug?e=2dfM0s](https://gla-my.sharepoint.com/:u:/g/personal/2592713l_student_gla_ac_uk/EevYgJRRfHVOjcxnTMft8UwBplq8Ch1tAJXk4W-THV6tug?e=2dfM0s).
 
 My conclusion is, rivers in the platau area is really fewer, which may also cause the shortage of observations here. As what I saw in the UCGS with full observations, there is same distribution in this area. 
 
