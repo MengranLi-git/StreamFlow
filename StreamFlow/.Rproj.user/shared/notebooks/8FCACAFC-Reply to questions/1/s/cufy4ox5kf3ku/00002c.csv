@@ -1,0 +1,3 @@
+"0","acf_Data <- spread(Stream_Series, key=""Season"", value=""V1"")"
+"0","acf_Data <- ts(acf_Data[,-1])"
+"0","acf(acf_Data[,1], main = ""Spring"", xlab="""")"

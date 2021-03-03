@@ -1,0 +1,7 @@
+"0","Stream_Series <- Stream_plot[, mean(Q, na.rm = TRUE),"
+"0","                             by = .(DecYear, Season)"
+"0","]"
+"0","Stream_Series %>%"
+"0","  ggplot(aes(x=DecYear,y=V1,group=Season,colour=Season))+"
+"0","  geom_line()+"
+"0","  coord_fixed(ratio = 1)"

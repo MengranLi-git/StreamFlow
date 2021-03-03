@@ -1,0 +1,7 @@
+"0","setwd(""F:\\StreamFlow"")"
+"2","The working directory was changed to F:/StreamFlow inside a notebook chunk. The working directory will be reset when the chunk is finished running. Use the knitr root.dir option in the setup chunk to change the working directory for notebook chunks."
+"0","load(""Stream.Rdata"")"
+"0","Stream <- Stream[Q >= 0]"
+"0",""
+"0","Stream_plot <- Stream[, c(""Site"", ""Q"", ""DecYear"", ""Month"", ""Region"")]"
+"0","setkey(Stream_plot, Region)"

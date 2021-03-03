@@ -1,7 +1,0 @@
-"0","Stream_Series_test <- spread(Stream_Series, key= ""Month"", value=""V1"")"
-"0","Stream_Series_test <- ts(Stream_Series_test[,-1], start=1980)"
-"0",""
-"0","par(mfrow=c(3,4))"
-"0","for(i in 1:12){"
-"0","  acf(Stream_Series_test[,i], main = paste0(""Month"",i))"
-"0","}"

@@ -1,3 +1,0 @@
-"0","Stream_Series <- Stream_plot[, mean(Q, na.rm = TRUE), "
-"0","                             by = .(DecYear, Month)] "
-"0","Stream_Series"

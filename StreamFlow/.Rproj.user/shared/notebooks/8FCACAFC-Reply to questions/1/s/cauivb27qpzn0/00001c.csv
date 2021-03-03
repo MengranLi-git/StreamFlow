@@ -1,0 +1,7 @@
+"0","Stream_summary %>%"
+"0","  ggplot(aes(long, lat)) +"
+"0","  geom_point(aes(color = Q, size = I(0.5), alpha = I(0.3))) +"
+"0","  scale_colour_gradientn(colours = c(""blue"", ""green"", ""yellow"", ""orange"", ""red"")) +"
+"0","  borders(""state"", size = I(0.2))+"
+"0","  coord_fixed(ratio=1.5)+"
+"0","  facet_wrap(~statistics)"

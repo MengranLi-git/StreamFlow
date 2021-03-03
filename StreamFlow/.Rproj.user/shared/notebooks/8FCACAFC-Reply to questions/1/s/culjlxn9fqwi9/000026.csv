@@ -1,0 +1,2 @@
+"0","par(mfrow=c(2,2))"
+"0","acf(diff(acf_Data[,1]), main = ""Spring"")"

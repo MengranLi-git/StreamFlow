@@ -1,0 +1,4 @@
+"0","Stream_plot[Stream_plot[, Month%in%3:5], Season := ""Spring""]"
+"0","Stream_plot[Stream_plot[, Month%in%6:8], Season := ""Summer""]"
+"0","Stream_plot[Stream_plot[, Month%in%9:11], Season := ""Autumn""]"
+"0","Stream_plot[Stream_plot[, Month%in%c(1,2,12)], Season := ""Winter""]"
