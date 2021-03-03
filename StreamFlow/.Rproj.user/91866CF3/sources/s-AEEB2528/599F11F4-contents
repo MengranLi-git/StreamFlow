@@ -29,7 +29,7 @@ The basemap, Esri.WorldImagery, is provided by Esri.
 
 -  Region
 
-Hydrologic Boundary shape file is from [Watershed Boundary Dataset](https://www.usgs.gov/core-science-systems/ngp/national-hydrography/watershed-boundary-dataset?qt-science_support_page_related_con=4#qt-science_support_page_related_con). It provides the boundary of each region. I have to say it was too hard to find so that I almost gave up (crying meme). But it may useful afterward. There are every class shape files, region (2-digital), subregion (4-digital), etc., until 12-digital. If necessary, I can plot them.
+Hydrologic Boundary shape file is from [Watershed Boundary Dataset](https://www.usgs.gov/core-science-systems/ngp/national-hydrography/watershed-boundary-dataset?qt-science_support_page_related_con=4#qt-science_support_page_related_con). It provides the boundary of each region. I have to say it was too hard to find so that I almost gave up (crying meme). But it may be useful afterward. There are every class shape files, region (2-digital), subregion (4-digital), etc., until 12-digital. If necessary, I can plot them.
 
 Label is the huc ID of each region.
 

@@ -1,5 +1,5 @@
 ---
-title: "Questions in the last note"
+title: "Reply to questions in the last note"
 author: "Mengran Li"
 date: "2021/3/2"
 output: pdf_document
@@ -36,13 +36,13 @@ setkey(Stream_plot, Region)
 
 I have written a web map [https://gla-my.sharepoint.com/:u:/g/personal/2592713l_student_gla_ac_uk/ET9gm5bLFjZAn2_Oxiu1s3UBeFYVbDnzWFMC44nH-l8GWg?e=QWzD1u](https://gla-my.sharepoint.com/:u:/g/personal/2592713l_student_gla_ac_uk/ET9gm5bLFjZAn2_Oxiu1s3UBeFYVbDnzWFMC44nH-l8GWg?e=QWzD1u).
 
-My conclusion is, rivers in the platau area is really fewer, which may also cause the shortage of observations here. As what I saw in the UCGS with full observations, there are same distribution in this area. 
+My conclusion is, rivers in the platau area is really fewer, which may also cause the shortage of observations here. As what I saw in the UCGS with full observations, there is same distribution in this area. 
 
 I think another reasonable interpretation that we see fewer dots in the area in higher quantile maps is, the Q values here are smaller than other area so that when we select threshold, almost none is left (while smaller quantiles opposite).
 
-My question is, whether we need to add some observations here, which is easy to realise. If we do, however, how can we choose sites added and how to explain the reason.
+My question is, whether we need to add some observations here. If we do, however, how can we choose sites added and how to explain the reason.
 
-About the geographical features, I have some thoughts. 
+Given by the geographical features, I have some thoughts. 
 
 -  Bivariate extreme model
 
