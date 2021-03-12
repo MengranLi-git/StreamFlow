@@ -33,6 +33,10 @@ Acf_Spring/Summer/Autumn/Winter.png: acf plots of each season.
 
 Acf_Spring/Autumn/Winter_diff.png: acf plots of each season after 1-diff.
 
+### Chi plot
+
+xx-yy.png: chi plot between region xx and region yy. 
+
 ### MeanExceedance
 
 MeanExceedance_0.05/0.1/0.2/0.70/0.90/0.95/0.975/0.99.png: mean exceedance of each quantiles.
@@ -74,6 +78,8 @@ Trend_Season.R: code of Reply to question
 Web_Map.R: code of Map.html
 
 Hydrologic_Boundary_Map.R: R code for drawing the Hydrologic Boundary Map
+
+Chi_plot: code of Chi_plot
 
 ## wbdhu2_a_us_september2020.gdb
 
