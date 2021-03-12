@@ -1,0 +1,39 @@
+---
+title: "Chi plot"
+author: "Mengran Li"
+date: "2021/3/8"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo = FALSE, message = FALSE}
+library(data.table)
+library(tidyverse)
+library(evd)
+
+setwd("F:\\StreamFlow")
+load("Stream.Rdata")
+Stream <- Stream[Q >= 0]
+
+Stream_plot <- Stream[, c("Site", "Q", "Date", "Region", "Month", "DecYear")]
+```
+
+
+###  Region 17 - 18
+
+There are 18 regions totally. If we test all combinations, there will be ${18 \choose 2}=\frac{18!}{2!16!}=153$. So I select nearby regions firstly for a rude impression.
+
+According to the web map and 
+```{r}
+ser1 <- Stream_plot[Region=="01"][,max(Q),by=.(Month, DecYear)][["V1"]]
+ser2 <- Stream_plot[Region=="02"][,max(Q),by=.(Month, DecYear)][["V1"]]
+plot(ser1,ser2)
+par(mfrow = c(1,2))
+chiplot(cbind(ser1,ser2))
+
+
+```
+### 

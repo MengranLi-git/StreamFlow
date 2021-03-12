@@ -20,7 +20,6 @@ library(tidyverse)
 library(KernSmooth)
 library(leaflet)
 library(maps)
-library(gganimate)
 ```
 
 ```{r, echo=FALSE}

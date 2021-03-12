@@ -1,0 +1,3 @@
+"0","ser1 <- Stream_plot[Region==""01""][,max(Q),by=.(Month, DecYear)][[""V1""]]"
+"0","ser2 <- Stream_plot[Region==""02""][,max(Q),by=.(Month, DecYear)][[""V1""]]"
+"0","plot(ser1,ser2)"
