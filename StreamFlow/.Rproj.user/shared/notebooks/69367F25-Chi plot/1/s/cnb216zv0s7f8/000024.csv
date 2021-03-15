@@ -1,4 +1,0 @@
-"0","ser1 <- Stream_plot[Region==""17""][,max(Q),by=.(DecYear, Month)][[""V1""]]"
-"0","ser2 <- Stream_plot[Region==""18""][,max(Q),by=.(DecYear, Month)][[""V1""]]"
-"0","par(mfrow = c(1,2))"
-"0","chiplot(cbind(ser1,ser2))"

@@ -1,0 +1,61 @@
+library(data.table)
+library(tidyverse)
+library(ismev)
+setwd("F:\\StreamFlow")
+load("Stream.Rdata")
+Stream <- Stream[Q >= 0]
+
+Stream_plot <- Stream[, c("Site", "Q", "DecYear", "Month", "Region")]
+setkey(Stream_plot, Region)
+
+
+## select one region
+
+Region1 <- Stream_plot[Region=="01"]
+
+## Year
+Region1 <- Region1[,max(Q),by=DecYear]
+
+ggplot(Region1, aes(x=DecYear, y=V1))+
+  geom_point()
+
+## Moving Average
+
+parameter <- as.data.frame(matrix(NA, ncol=3, nrow=25))
+for (i in 1:25){
+  fit1 <- gev.fit(Region1$V1[i:(i+15)])
+  parameter[i,] <- fit1$mle
+}
+
+ggplot(parameter, aes(x=row.names(parameter), y=V1))+
+  geom_point()
+ggplot(parameter, aes(x=row.names(parameter), y=V2))+
+  geom_point()
+
+Region1 <- Region1[, Month:=as.factor(Month)]
+
+Region1[Region1[, Month %in% 3:5], Season := "Spring"]
+Region1[Region1[, Month %in% 6:8], Season := "Summer"]
+Region1[Region1[, Month %in% 9:11], Season := "Autumn"]
+Region1[Region1[, Month %in% c(1, 2, 12)], Season := "Winter"]
+levels(Region1$Month) <- c(paste0("0",1:9),10:12)
+
+
+
+
+
+library(forecast)
+
+Region1_ts <- ts(Region1[,3],  start=c(1980, 1), frequency=3)
+opar <- par(no.readonly=TRUE) 
+par(mfrow=c(2,2)) 
+ylim <- c(min(Region1_ts), max(Region1_ts)) 
+plot(Region1_ts, main="Raw time series") 
+plot(ma(Region1_ts, 3), main="Simple Moving Averages (k=3)", ylim=ylim) 
+plot(ma(Region1_ts, 7), main="Simple Moving Averages (k=7)", ylim=ylim) 
+plot(ma(Region1_ts, 15), main="Simple Moving Averages (k=15)", ylim=ylim) 
+par(opar) 
+
+
+fit <- stl(Region1_ts[,1], s.window = 12)
+plot(fit) 
