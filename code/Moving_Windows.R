@@ -47,3 +47,8 @@ ggplot(paralist, aes(x=t, y=V1))+
   xlab("t")+
   ylab("location")+
   facet_wrap(~Region)
+
+
+
+
+
