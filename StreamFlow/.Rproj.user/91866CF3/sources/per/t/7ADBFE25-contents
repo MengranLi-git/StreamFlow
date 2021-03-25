@@ -1,0 +1,303 @@
+---
+title: "Journal of Hydrology"
+author: "Mengran Li"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+# Data, Challenges and Aims
+
+### Data
+
+  Daily discharge data from *7 stations* of Senegal River and 5 stations of Niger River during 1950–2015.
+
+--
+
+### Challenges
+
+--
+
+-  Strong variablitily of tropical climate
+
+--
+
+-  large uncertainty of climate projections
+
+--
+
+-  lack of long-term hydrological observations
+
+--
+
+### Aims
+
+-  Detect and quantify trends 
+
+--
+
+-  Identify model
+
+--
+
+-  Represent the evolution of extremes
+
+---
+
+# Methods
+
+### Selection of extreme discharge values
+
+  Take annual maxima of daily discharge and control for data quality
+
+--
+
+### Formulation of statistical models
+
+#### Moving Windows
+
+.pull-left[
+```{r, echo=FALSE}
+library(ggplot2)
+data <- data.frame(t1=1:5,t2=5:9,y1=0.5,y2=-0.5,group=paste0("η","(",3:7,")"),t3=3:7,y3=0)
+
+data$t1 <- as.factor(data$t1)
+data$t2 <- as.factor(data$t2)
+
+library(gganimate)
+P <- ggplot(data, aes(xmin = t1, xmax = t2, ymin = y1, ymax = y2, colour = "red")) + 
+  geom_rect(size = 2, alpha = 0.5,fill=alpha("grey",0.1)) + 
+  geom_text(size = 7, color = "black", aes(t3,y3,label=as.factor(group)))+
+  xlab("t")+
+  ylab("Discharge")+
+  scale_colour_identity() + 
+  theme_bw()+
+  theme(axis.text.y = element_blank())+
+  theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5))+
+  coord_fixed(ratio = 1.5) +
+  transition_time(1:5) +
+  ease_aes("linear")
+animate(P,width = 400, height = 100)
+```
+
+]
+
+.pull-right[
+
+-  Fit GEV with full data of a station $\to\hat{\phi}$
+ 
+-  Fix $\hat{\phi}$ and move the window $\to\hat{\eta}(t)$
+ 
+]
+
+--
+
+#### Temporal Model
+
+.pull-left[
+```{r, echo=FALSE, out.height = 170, out.width= 400}
+knitr::include_graphics("F:/StreamFlow/Report/Journal-of-Hydrology_files/Model.png")
+```
+]
+
+.pull-right[
+-  Define breakpoint $t_\mu$ and $t_\sigma$
+
+-  Stationary Model $\eta(t)=\eta_0$
+  
+-  Non-Staionary Model: 
+            
+            Single, Double, Triple
+]
+
+---
+
+# Methods
+
+### Selection of Models
+
+  -  AIC: Initial best model
+
+--
+
+  -  LRT: validate selected model
+
+--
+
+### Return level evaluation
+
+--
+
+-  Return level of S-GEV and NS-GEV: $r_T(S-GEV)$, $r_T(NS-GEV)$
+
+--
+
+-  Relative evolution of return levels: $r_{T,normalized}=\frac{r_T(NS-GEV)}{r_T(S-GEV)}$
+
+--
+
+###  Uncertainty assessment
+
+--
+
+  Confidential Intervals for parameters: Bootstrap
+
+---
+
+# Main results
+
+####  Selected GEV model and Extreme discharge tails behavior
+
+.pull-left[
+
+-  An exmaple of NS-GEV model
+
+```{r, echo=FALSE, out.height = 180, out.width= 300}
+knitr::include_graphics("F:/StreamFlow/Report/Journal-of-Hydrology_files/Example.png")
+```
+
+-  Model Selection
+
+   -  Follow the moving window
+   
+   -  NS-GEV model always better
+
+   -  Breakpoints; trend
+
+-  Extreme discharge tails behavior
+
+]
+
+--
+
+.pull-right[
+
+```{r, echo=FALSE, out.height = 500, out.width= 400}
+knitr::include_graphics("F:/StreamFlow/Report/Journal-of-Hydrology_files/Model_Selection.png")
+```
+
+]
+
+---
+
+# Main results
+
+.pull-left[
+
+####  Return Level
+
+```{r, echo=FALSE, out.height = 480, out.width= 400}
+knitr::include_graphics("F:/StreamFlow/Report/Journal-of-Hydrology_files/Return_level_2.png")
+```
+]
+
+.pull-right[
+
+```{r, echo=FALSE, out.height = 200, out.width= 400}
+knitr::include_graphics("F:/StreamFlow/Report/Journal-of-Hydrology_files/Return.png")
+
+```
+
+-  Relative return level
+
+```{r, echo=FALSE, out.height = 180, out.width= 400}
+knitr::include_graphics("F:/StreamFlow/Report/Journal-of-Hydrology_files/Relative_return.png")
+```
+
+####  Scale effects of drainage area
+
+]
+---
+
+# Drawbacks
+
+--
+
+-  ## Only parametric models were preselected
+
+--
+
+-  ## Doesn't consider abrupt shifts
+
+--
+
+-  ## Uncertainty is high
+
+---
+
+# Apply to our data
+
+--
+
+### Selection of extreme discharge values
+
+--
+
+### Formulation of statistical models
+
+--
+
+-  Moving Windows: 
+
+  10-year would be better
+
+--
+
+-  Temporal Model: 
+
+--
+
+   -  Stationary model
+
+--
+
+   -  Continuous trend with breakpoint
+   
+   $\eta(t)=\eta_0+\eta_1D_1(t-t_1)+\eta_2D_2(t-t_2)+\dots+\eta_nD_n(t-t_n)$
+   
+   where $D_1=\begin{cases}1, &t\leq{t_1} \\0, &other\ values\end{cases}$,
+   $D_2=\begin{cases}1, &t_1<t\leq{t_2} \\0, &other\ values\end{cases}$, $\dots$
+
+---
+
+# Apply to our data
+
+   -  Abrupt shifts
+   
+     $\eta(t)=\eta_0+\eta_1D_1(t-t_1)+\eta_1^{*}D_1+\eta_2D_2(t-t_2)+\eta_2^{*}D_2+\dots$
+   
+   where $D_1=\begin{cases}1, &t\leq{t_1} \\0, &other\ values\end{cases}$,
+   $D_2=\begin{cases}1, &t_1<t\leq{t_2} \\0, &other\ values\end{cases}$, $\dots$
+
+--
+
+   -  Breakpoint as parameter?
+  
+--
+
+### Selection of Models
+
+--
+
+### Bivariate models
+
+  Consider association between two regions
+
+--
+
+### Return level evaluation
+
+--
+
+### Uncertainty assessment
+
+
+
+
+

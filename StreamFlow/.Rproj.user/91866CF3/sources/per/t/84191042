@@ -3,7 +3,7 @@
     "path": "F:/StreamFlow/code/Model_Fit.R",
     "project_path": null,
     "type": "r_source",
-    "hash": "2081005264",
+    "hash": "3374052678",
     "contents": "",
     "dirty": false,
     "created": 1615919074099.0,
@@ -11,15 +11,15 @@
     "relative_order": 5,
     "properties": {
         "tempName": "Untitled2",
-        "cursorPosition": "137,0",
-        "scrollLine": "127"
+        "cursorPosition": "0,0",
+        "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1615940091,
+    "lastKnownWriteTime": 1616630600,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1615940091875,
+    "last_content_update": 1616630600041,
     "read_only": false,
     "read_only_alternatives": []
 }

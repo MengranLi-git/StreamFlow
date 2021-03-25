@@ -20,7 +20,7 @@ Moving_window <- function(x, win=15, url, save=TRUE, name){
   parameter <- as.data.frame(matrix(NA, ncol=4, nrow=n_row))
   names(parameter) <- c("t","location","scale","shape")
   for (i in 1:(n_row-2*n_sep)){
-    fit <- gev.fit(x$V1[i:(i+win)],shinit=shape)
+    fit <- gev.fit(x$V1[i:(i+win)])
     parameter[i+n_sep,1] <- i+n_sep
     parameter[i+n_sep,2:4] <- fit$mle
   }
@@ -28,20 +28,26 @@ Moving_window <- function(x, win=15, url, save=TRUE, name){
     ggplot(parameter, aes(x=t, y=location))+
       geom_point()+
       xlab("t")+
-      ylab("location")
-    ggsave(paste0(url,"/","location",name,".png"), plot=last_plot())
+      ylab("location")+
+    ggsave(paste0(url,"/","location",name,".png"), plot=last_plot(),height=3,width=4)
     ggplot(parameter, aes(x=t, y=scale))+
       geom_point()+
       xlab("t")+
       ylab("scale")
-    ggsave(paste0(url,"/","scale",name,".png"), plot=last_plot())
+    ggsave(paste0(url,"/","scale",name,".png"), plot=last_plot(),height=3,width=4)
+    ggplot(parameter, aes(x=t, y=shape))+
+      geom_point()+
+      xlab("t")+
+      ylab("shape")
+    ggsave(paste0(url,"/","shape",name,".png"), plot=last_plot(),height=3,width=4)
+    
   }
   return(parameter)
 }
 
 ## An exmaple
-MOV <- Moving_window(x=Region1, win = 15, url = "F:/StreamFlow/Plot/Moving_Windows", 
-                     save = TRUE, name = quote(Region1))
+MOV <- Moving_window(x=Region1, win = 10, url = "F:/StreamFlow/Plot/Moving_Windows", 
+                     save = FALSE, name = quote(Region1))
 
 ## All Region
 for (i in 1:18){
@@ -100,30 +106,30 @@ fit3 <- Double_linear(Region1, point_sigma = 0, S_mu = TRUE)
 ## mu_trend, sigma_trend
 fit4 <- Double_linear(Region1, point_mu = 0, point_sigma = 0)
 ## mu_twice, sigma_station
-fit5 <- Double_linear(Region1, point_mu = 16, S_sigma = TRUE)
+fit5 <- Double_linear(Region1, point_mu = 14, S_sigma = TRUE)
 ## mu_twice, sigma_trend
-fit6 <- Double_linear(Region1, point_mu = 16, point_sigma=0)
+fit6 <- Double_linear(Region1, point_mu = 14, point_sigma=0)
 ## mu_station, sigma_twice
 fit7 <- Double_linear(Region1, point_sigma=16, S_mu = TRUE)
 ## mu_trend, sigma_twice
 fit8 <- Double_linear(Region1, point_mu = 0, point_sigma=16)
 ## mu_twice, sigma_twice
-fit9 <- Double_linear(Region1, point_mu = 16, point_sigma=16)
+fit9 <- Double_linear(Region1, point_mu = 14, point_sigma=16)
 
 
 result <- data.table(df=c(3,4,4,5,6,7,6,7,9))
 for(i in 1:9){
-  result[i, "nlik"] <- get(paste0("fit",i))$nllh
+  result[i, "nllh"] <- get(paste0("fit",i))$nllh
 }
-result <- transform(result, AIC=2*(df+nlik))
+result <- transform(result, AIC=2*(df+nllh))
 which.min(result$AIC)
 mle <- get(paste0("fit",which.min(result$AIC)))$mle
 se <- get(paste0("fit",which.min(result$AIC)))$se
 
 t <- 1:40
 y <- data.frame(t = 1:40, mu_t = mle[1]+t*mle[2],
-                upper = mle[1]+qnorm(0.975)*se[1]/sqrt(39)+t*(mle[2]+qnorm(0.975)*se[2]),
-                lower = mle[1]-qnorm(0.975)*se[1]+t*(mle[2]-qnorm(0.975)*se[2]))
+                upper = mle[1]+qt(0.975,39)*se[1]/sqrt(40)+t*(mle[2]+qt(0.975,39)*se[2]/sqrt(40)),
+                lower = mle[1]-qt(0.975,39)*se[1]/sqrt(40)+t*(mle[2]-qt(0.975,39)*se[2]/sqrt(40)))
 
 ggplot(y,aes(x=t,y=mu_t))+
   geom_line()+
@@ -132,7 +138,9 @@ ggplot(y,aes(x=t,y=mu_t))+
   geom_point(data = MOV, aes(x=t, y=location, color=I("blue")))+
   geom_point(data = Region1, aes(x=DecYear-1980, y=V1,color="red"))+
   xlab("t")+
-  ylab("location")
+  ylab(expression(mu(t)))
 
-gev.diag(fit2)
+
+
+
 
