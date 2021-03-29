@@ -1,5 +1,4 @@
-linear <- function(x, mu, sig, sh, para=c("double", "single", "s")) {
-
+fit_linear <- function(x, mu, sig, sh, para=c("double", "single", "s")) {
   co <- data.frame(mu = NA, sig = NA, sh = NA)
   n <- 1
   for (i in 1:3) {
@@ -57,14 +56,17 @@ linear <- function(x, mu, sig, sh, para=c("double", "single", "s")) {
       if (is_empty(sigl)) {
         if (is_empty(mul)) {
           shl <- 1 + ll_sh[[1]]
+          loc_sh <- c(max(loc_sig), shl+1) +1
         } else {
           shl <- max(mul) + ll_sh[[1]]
+          loc_sh <- c(max(loc_sig), shl+1) +1
         }
       } else {
         shl <- max(sigl) + ll_sh[[1]]
+        loc_sh <- c(max(loc_sig), shl+1) +1
       }
     }
-    loc_sh <- c(max(loc_sig), shl) + 1
+    
 
     fit <- try(gev.fit(x, y, mul = mul, sigl = sigl, shl = shl),silent=TRUE)
     if('try-error' %in% class(fit)){
@@ -79,7 +81,7 @@ linear <- function(x, mu, sig, sh, para=c("double", "single", "s")) {
     fit[["est_mu"]] <- CI(as.matrix(cbind(rep(1, 40), ll_mu[[2]])), fit$mle[loc_mu], fit$cov[loc_mu, loc_mu])
     fit[["est_sig"]] <- CI(as.matrix(cbind(rep(1, 40), ll_sig[[2]])), fit$mle[loc_sig], fit$cov[loc_sig, loc_sig])
     fit[["est_sh"]] <- CI(as.matrix(cbind(rep(1, 40), ll_sh[[2]])), fit$mle[loc_sh], fit$cov[loc_sh, loc_sh])
-    name <- paste0("fit", i)
+    name <- paste0("fit", i )
     assign(name, fit)
     }
   }
