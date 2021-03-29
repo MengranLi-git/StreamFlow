@@ -3,7 +3,7 @@ cut_breakpoint <- function(x, breakpoint=0, abrupt = FALSE){
     return(NULL)
   }else{
     if(length(breakpoint) == 1 & breakpoint[1]==0){
-      return(x) 
+      return(as.matrix(x)) 
   }
 }
       breakpoint <- c(-Inf,breakpoint,+Inf)
@@ -25,13 +25,3 @@ cut_breakpoint <- function(x, breakpoint=0, abrupt = FALSE){
     return(cbind(D,data))
   }
 }
-
-x <- 1:40
-mul <- cut_breakpoint(1:40, 10, abrupt = TRUE)
-sigl <- cut_breakpoint(1:40, 16)
-shl <- cut_breakpoint(1:40)
-y <- as.matrix(cbind(mul,sigl,shl))
-library(ismev)
-
-gev.fit(Region1$V1,y,mul=c(1:4),sigl=c(5:6),shl=7)
-

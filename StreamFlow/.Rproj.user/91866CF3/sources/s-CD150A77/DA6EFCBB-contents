@@ -1,0 +1,94 @@
+library(data.table)
+Region2 <- Stream_plot[Region=="02"][,max(Q),by=DecYear]
+x <- Region2$V1
+
+#### stationary ####
+fit1 <- gev.fit(x)
+est_mu1 <- CI(as.matrix(rep(1,40)),fit1$mle[1],fit2$cov[1,1])
+est_sig1 <- CI(as.matrix(rep(1,40)),fit1$mle[2],fit2$cov[2,2])
+est_sh1 <- CI(as.matrix(rep(1,40)),fit1$mle[3],fit2$cov[3,3])
+
+#### single ####
+single <- cut_breakpoint(1:40, breakpoint=0, abrupt = FALSE)
+fit2 <- fit_single(x,single)
+est_mu2 <- CI(cbind(1,single),fit2$mle[1:2],fit2$cov[1:2,1:2])
+est_sig2 <- CI(as.matrix(rep(1,40)),fit2$mle[3],fit2$cov[3,3])
+est_sh2 <- CI(as.matrix(rep(1,40)),fit2$mle[4],fit2$cov[4,4])
+
+
+#### double ####
+fit3 <- fit_double(x,20,30,30)
+fit3$`which is double`
+double <- cut_breakpoint(1:40,breakpoint=20)
+est_mu3 <- CI(cbind(1,double),fit3$mle[1:3],fit3$cov[1:3,1:3])
+est_sig3 <- CI(as.matrix(rep(1,40)),fit3$mle[4],fit3$cov[4,4])
+est_sh3 <- CI(as.matrix(rep(1,40)),fit3$mle[5],fit3$cov[5,5])
+
+
+#### fit_abrupt ####
+fit_abrupt(x,20,30,30)
+
+#### quadratic ####
+fit4 <- fit_quad(x)
+fit4$`which is quad`
+est_mu4 <- CI(cbind(1,1:40,(1:40)^2),fit4$mle[1:3],fit4$cov[1:3,1:3])
+est_sig4 <- CI(as.matrix(rep(1,40)),fit4$mle[4],fit4$cov[4,4])
+est_sh4 <- CI(cbind(1,1:40,(1:40)^2),fit4$mle[5:7],fit4$cov[5:7,5:7])
+
+#### exp ####
+fit5 <- gev.fit(x, single, sigl=1,siglink=exp)
+est_mu5 <- CI(as.matrix(rep(1,40)),fit5$mle[1],fit5$cov[1,1])
+est_sig5 <- CI(cbind(1,single),fit5$mle[2:3],fit5$cov[2:3,2:3])
+est_sh5 <- CI(as.matrix(rep(1,40)),fit5$mle[4],fit5$cov[4,4])
+fit5$mle
+fit5$vals[,2]
+fit5$nllh
+#### GPD ####
+gpd.diag(gpd.fit(x,2))
+gpd.fit(x,2)
+
+est_mu <- rbind(est_mu1,est_mu2,est_mu3,est_mu4,est_mu5)
+est_mu$Group <- rep(c("fit1","fit2","fit3","fit4","fit5"),each=40)
+est_mu$para <- "mu"
+
+est_sig <- rbind(est_sig1,est_sig2,est_sig3,est_sig4,est_sig5)
+est_sig$Group <- rep(c("fit1","fit2","fit3","fit4","fit5"),each=40)
+est_sig$para <- "sig"
+
+est_sh <- rbind(est_sh1,est_sh2,est_sh3,est_sh4,est_sh5)
+est_sh$Group <- rep(c("fit1","fit2","fit3","fit4","fit5"),each=40)
+est_sh$para <- "sh"
+
+est <- rbind(est,est_sig)
+est <- rbind(est,est_sh)
+
+#### plot ####
+library(ggplot2)
+est_mu %>%
+  filter(Group != "fit5") %>%
+  ggplot(aes(x=t,y=est))+
+  geom_line(aes(color=Group,size=I(1)))+
+  geom_line(aes(x=t,y=U,color=Group),linetype=2,size=I(1))+
+  geom_line(aes(x=t,y=L,color=Group),linetype=2,size=I(1))+
+#  geom_point(data = MOV, aes(x=t, y=location, color="window",size=I(2)))+
+  geom_point(data = Region2, aes(x=DecYear-1980, y=V1,size=I(2)))+
+  xlab("t")+
+  ylab(expression(mu(t)))
+
+est_sig %>%
+  filter(Group != "fit5") %>%
+  ggplot(aes(x=t,y=est))+
+  geom_line(aes(color=Group,size=I(1)))+
+  geom_line(aes(x=t,y=U,color=Group),linetype=2,size=I(1))+
+  geom_line(aes(x=t,y=L,color=Group),linetype=2,size=I(1))+
+  xlab("t")+
+  ylab(expression(sigma(t)))
+
+est_sh %>%
+  filter(Group != "fit5") %>%
+  ggplot(aes(x=t,y=est))+
+  geom_line(aes(color=Group,size=I(1)))+
+  geom_line(aes(x=t,y=U,color=Group),linetype=2,size=I(1))+
+  geom_line(aes(x=t,y=L,color=Group),linetype=2,size=I(1))+
+  xlab("t")+
+  ylab(expression(shape(t)))

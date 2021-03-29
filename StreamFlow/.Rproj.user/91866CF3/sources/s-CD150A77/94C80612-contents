@@ -1,0 +1,91 @@
+setwd("F:/Streamflow/code/")
+source("CI.R")
+source("cut_breakpoint.R")
+source("abrupt_shift.R")
+source("Moving_window.R")
+source("ll.R")
+source("linear.R")
+source("quad.R")
+library(data.table)
+library(tidyverse)
+library(ismev)
+setwd("F:\\StreamFlow")
+load("Stream.Rdata")
+Stream <- Stream[Q >= 0]
+Stream_plot <- Stream[, c("Site", "Q", "DecYear", "Month", "Region")]
+
+Region2 <- Stream_plot[Region=="02"][,max(Q),by=DecYear]
+#MOV
+MOV <- Moving_window(x=Region2, win = 10, url = "F:/StreamFlow/Plot/Moving_Windows", 
+                     save = FALSE, name = quote(Region1))
+x <- Region2$V1
+fit <- linear(x,20,30,28)
+gev.diag(fit$best_fit)
+fit[["single_fit"]]$formulation
+fit[["double_fit"]]$formulation
+fit[["double_fit"]]$vals
+fit[["double_fit"]]$est_sh
+fit2 <- quad(x)
+
+fit2$formulation
+fit2$est_sig
+fit2$vals
+gev.diag(fit2)
+est_mu <- NULL
+est_sig <- NULL
+est_sh <- NULL
+for(i in 2:4){
+  est_mu <- rbind(est_mu,fit[[i]]$est_mu)
+  est_sig <- rbind(est_sig,fit[[i]]$est_sig)
+  est_sh <- rbind(est_sh,fit[[i]]$est_sh)
+}
+est_mu <-  rbind(est_mu, fit2$est_mu)
+est_sig <-  rbind(est_sig, fit2$est_sig)
+est_sh <-  rbind(est_sh, fit2$est_sh)
+
+est_mu$Group <- rep(c("s_fit","single_fit","double_fit","quad_fit"),each=40)
+est_sig$Group <- rep(c("s_fit","single_fit","double_fit","quad_fit"),each=40)
+est_sh$Group <- rep(c("s_fit","single_fit","double_fit","quad_fit"),each=40)
+
+plot_para <- function(est_mu,est_sig,est_sh){
+  p1 <- est_mu %>%
+    #  filter(Group != "fit5") %>%
+    ggplot(aes(x=t,y=est))+
+    geom_line(aes(color=Group,size=I(1)))+
+    geom_line(aes(x=t,y=U,color=Group),linetype=2,size=I(1))+
+    geom_line(aes(x=t,y=L,color=Group),linetype=2,size=I(1))+
+    geom_point(data = MOV, aes(x=t, y=location, color="window",size=I(2)))+
+    geom_point(data = Region2, aes(x=DecYear-1980, y=V1,size=I(2)))+
+    xlab("t")+
+    ylab(expression(mu(t)))
+  
+  p2 <- est_sig %>%
+    #  filter(Group != "quad_fit") %>%
+    ggplot(aes(x=t,y=est))+
+    geom_line(aes(color=Group,size=I(1)))+
+    geom_line(aes(x=t,y=U,color=Group),linetype=2,size=I(1))+
+    geom_line(aes(x=t,y=L,color=Group),linetype=2,size=I(1))+
+    xlab("t")+
+    ylab(expression(sigma(t)))
+  
+  p3 <- est_sh %>%
+ #     filter(Group != "quad_fit") %>%
+    ggplot(aes(x=t,y=est))+
+    geom_line(aes(color=Group,size=I(1)))+
+    geom_line(aes(x=t,y=U,color=Group),linetype=2,size=I(1))+
+    geom_line(aes(x=t,y=L,color=Group),linetype=2,size=I(1))+
+    xlab("t")+
+    ylab(expression(xi(t)))
+  
+  p <- list(p1,p2,p3)
+  p[["nrow"]] = 3
+  p[["ncol"]] = 1
+  do.call(grid.arrange,p)
+}
+
+plot_para(est_mu,est_sig,est_sh)
+
+library(gridExtra)
+do.call(grid.arrange,p)
+
+

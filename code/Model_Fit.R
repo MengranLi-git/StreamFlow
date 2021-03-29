@@ -127,9 +127,6 @@ mle <- get(paste0("fit",which.min(result$AIC)))$mle
 se <- get(paste0("fit",which.min(result$AIC)))$se
 
 t <- 1:40
-y <- data.frame(t = 1:40, mu_t = mle[1]+t*mle[2],
-                upper = mle[1]+qt(0.975,39)*se[1]/sqrt(40)+t*(mle[2]+qt(0.975,39)*se[2]/sqrt(40)),
-                lower = mle[1]-qt(0.975,39)*se[1]/sqrt(40)+t*(mle[2]-qt(0.975,39)*se[2]/sqrt(40)))
 
 ggplot(y,aes(x=t,y=mu_t))+
   geom_line()+
@@ -139,6 +136,8 @@ ggplot(y,aes(x=t,y=mu_t))+
   geom_point(data = Region1, aes(x=DecYear-1980, y=V1,color="red"))+
   xlab("t")+
   ylab(expression(mu(t)))
+
+
 
 
 
