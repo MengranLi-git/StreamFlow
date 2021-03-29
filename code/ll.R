@@ -1,7 +1,9 @@
-ll <- function(x,para,data){
+ll <- function(x,para,data,abrupt=FALSE){
   if(x==para[1]){
     ll=data
-    n=1:2
+    if(abrupt){
+      n = 1:4
+    }else{n=1:2}
   }else{
     if(x==para[2]){
       ll=1:40
@@ -11,3 +13,4 @@ ll <- function(x,para,data){
   }
   return(list(n,ll))
 }
+
