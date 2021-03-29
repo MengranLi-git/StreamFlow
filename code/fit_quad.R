@@ -1,77 +1,96 @@
-fit_quad <- function(x){
-  single <- as.matrix(1:40)
-  quad <- single^2
-  model <- c("mu=quad,sig=s,sh=s",
-             "mu=s,sig=quad,sh=s",
-             "mu=s,sig=s,sh=quad",
-             "mu=quad,sig=single,sh=s",
-             "mu=quad,sig=s,sh=single",
-             "mu=single,sig=quad,sh=s",
-             "mu=s,sig=quad,sh=single",
-             "mu=single,sig=s,sh=quad",
-             "mu=s,sig=single,sh=quad",
-             "mu=quad,sig=single,sh=single",
-             "mu=single,sig=quad,sh=single",
-             "mu=single,sig=single,sh=quad",
-             "mu=quad,sig=quad,sh=s",
-             "mu=quad,sig=s,sh=quad",
-             "mu=s,sig=quad,sh=quad",
-             "mu=quad,sig=quad,sh=single",
-             "mu=quad,sig=single,sh=quad"
-             # "mu=single,sig=quad,sh=quad",
-  )
-  # quad, s, s
-  y <- cbind(single,quad)
-  fit1 <- gev.fit(x,y, mul=c(1:2))
-  fit1[["df"]] <- 5
-  fit2 <- gev.fit(x,y, sigl=c(1:2))
-  fit2[["df"]] <- 5
-  fit3 <- gev.fit(x,y, shl=c(1:2))
-  fit3[["df"]] <- 5
-  # quad, s, single
-  y <- cbind(single,quad)
-  fit4 <- gev.fit(x,y, mul=c(1:2),sigl = 1)
-  fit4[["df"]] <- 6
-  fit5 <- gev.fit(x,y, mul=c(1:2),shl = 1)
-  fit5[["df"]] <- 6
-  fit6 <- gev.fit(x,y, mul=1, sigl=c(1:2))
-  fit6[["df"]] <- 6
-  fit7 <- gev.fit(x,y, sigl=c(1:2), shl=1)
-  fit7[["df"]] <- 6
-  fit8 <- gev.fit(x,y, mul=1,shl=c(1:2))
-  fit8[["df"]] <- 6
-  fit9 <- gev.fit(x,y, sigl=1,shl=c(1:2))
-  fit9[["df"]] <- 6
+fit_quad <- function(x, para=c("quad", "single", "s")) {
+  co <- data.frame(mu = NA, sig = NA, sh = NA)
+  n <- 1
+  for (i in 1:3) {
+    for (j in 1:3) {
+      for (h in 1:3) {
+        co[n, 1] <- para[i]
+        co[n, 2] <- para[j]
+        co[n, 3] <- para[h]
+        n <- n + 1
+      }
+    }
+  }
+  single <- 1:length(x)
+  double_mu <- cbind(1:length(x),(1:length(x))^2)
+  double_sig <- cbind(1:length(x),(1:length(x))^2)
+  double_sh <- cbind(1:length(x),(1:length(x))^2)
   
-  # quad, single, single
-  fit10 <- gev.fit(x,y, mul=c(1:2),sigl = 1, shl=1)
-  fit10[["df"]] <- 7
-  fit11 <- gev.fit(x,y, mul=1,sigl = c(1:2), shl=1)
-  fit11[["df"]] <- 7
-  fit12 <- gev.fit(x,y, mul=1,sigl = 1, shl=c(1:2))
-  fit12[["df"]] <- 7
-  # quad, quad, s
-  fit13 <- gev.fit(x,y, mul=c(1:2),sigl = c(1:2), shl=1)
-  fit13[["df"]] <- 8
-  fit14 <- gev.fit(x,y, mul=c(1:2),sigl = 1, shl=c(1:2))
-  fit14[["df"]] <- 8
-  fit15 <- gev.fit(x,y, mul=1,sigl = c(1:2), shl=c(1:2))
-  fit15[["df"]] <- 8
-  # quad, quad, single
-  fit16 <- gev.fit(x,y, mul=c(1:2),sigl = c(1:2), shl=1)
-  fit16[["df"]] <- 8
-  fit17 <- gev.fit(x,y, mul=c(1:2),sigl = 1, shl=c(1:2))
-  fit17[["df"]] <- 8
-  fit18 <- gev.fit(x,y, mul=1,sigl = c(1:2), shl=c(1:2))
-  fit18[["df"]] <- 8
-  # quad, quad, quad
-  # fit19 <- gev.fit(x,y, mul=c(1:2),sigl = c(1:2), shl=c(1:2))
-  
-  AIC <- numeric(18)
-  for(i in 1:18){
-    AIC[i] <- get(paste0("fit",i))$nllh+get(paste0("fit",i))$df
-  }  
+  rank <- which(apply(co,1,function(x) "quad" %in% x))
+  for (i in rank) {
+    com <- co[i, ]
+    
+    ll_mu <- ll(com$mu, para, double_mu)
+    ll_sig <- ll(com$sig, para, double_sig)
+    ll_sh <- ll(com$sh, para, double_sh)
+    
+    y <- cbind(1, ll_mu[[2]], ll_sig[[2]], ll_sh[[2]])
+    
+    if (is_empty(ll_mu[[1]])) {
+      mul <- NULL
+      loc_mu <- 1
+    } else {
+      mul <- ll_mu[[1]] + 1
+      loc_mu <- c(1, mul)
+    }
+    
+    if (is_empty(ll_sig[[1]])) {
+      sigl <- NULL
+      loc_sig <- max(loc_mu) + 1
+    } else {
+      if (is_empty(mul)) {
+        sigl <- 1 + ll_sig[[1]]
+        loc_sig <- c(max(loc_mu), sigl) + 1
+      } else {
+        sigl <- max(mul) + ll_sig[[1]]
+        loc_sig <- c(max(loc_mu), sigl) + 1
+      }
+    }
+    
+    if (is_empty(ll_sh[[1]])) {
+      shl <- NULL
+      loc_sh <- max(loc_sig) + 1
+    } else {
+      if (is_empty(sigl)) {
+        if (is_empty(mul)) {
+          shl <- 1 + ll_sh[[1]]
+          loc_sh <- c(max(loc_sig), shl+1) + 1
+        } else {
+          shl <- max(mul) + ll_sh[[1]]
+          loc_sh <- c(max(loc_sig), shl+1) + 1
+        }
+      } else {
+        shl <- max(sigl) + ll_sh[[1]]
+        loc_sh <- c(max(loc_sig), shl+1) + 1
+      }
+    }
+    
+    
+    fit <- try(gev.fit(x, y, mul = mul, sigl = sigl, shl = shl),silent=TRUE)
+    if('try-error' %in% class(fit)){
+      fit <- NULL
+      name <- paste0("fit", i)
+      assign(name, fit)
+      next
+    }else{
+      fit <- gev.fit(x, y, mul = mul, sigl = sigl, shl = shl)
+      fit[["AIC"]] <- 2 * (length(fit$mle) + fit$nllh)
+      fit[["formulation"]] <- com
+      fit[["est_mu"]] <- CI(as.matrix(cbind(rep(1, 40), ll_mu[[2]])), fit$mle[loc_mu], fit$cov[loc_mu, loc_mu])
+      
+      fit[["est_sig"]] <- CI(as.matrix(cbind(rep(1, 40), ll_sig[[2]])), fit$mle[loc_sig], fit$cov[loc_sig, loc_sig])
+      fit[["est_sh"]] <- CI(as.matrix(cbind(rep(1, 40), ll_sh[[2]])), fit$mle[loc_sh], fit$cov[loc_sh, loc_sh])
+      
+    }
+    name <- paste0("fit", i)
+    assign(name, fit)
+  }
+  AIC <- rep(100000,27)
+  for (i in rank) {
+    if(!is_empty(get(paste0("fit", i)))){
+      AIC[i] <- get(paste0("fit", i))$AIC
+    }
+  }
   fit <- get(paste0("fit", which.min(AIC)))
-  fit[["which is quad"]] <- model[which.min(AIC)]
   return(fit)
 }
