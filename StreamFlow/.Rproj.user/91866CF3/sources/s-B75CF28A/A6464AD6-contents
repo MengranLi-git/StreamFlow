@@ -1,0 +1,234 @@
+
+---
+title: "Model fit results"
+author: "Mengran Li"
+date: "2021/4/7"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+## 1. Introduction
+
+```{r}
+library(tidyverse)
+library(ismev)
+library(ggpubr)
+```
+
+General steps of GEV models:
+
+1. Block by annual maximum
+
+2. Moving windows and select breakpoints (if necessary)
+
+3. Model fitting
+
+4. Confidence Interval: Wald Confidence
+
+5. Model Compare: AIC
+
+For Region1,
+
+take annual maximum of discharge from 1980-2019, totally 40 values.
+
+```{r}
+load("Region.Rdata")
+Region
+```
+
+## 2. Moving windows{#mov}
+
+Estimate stationary parameters in a window with length of 10 years.
+
+Then move to next window, whose start year is 1 year later than the previous window's start year.
+
+Parameters are stationary in observing windows but no parameter is fixed during the whole 40 years. Results are in part [4](#shiny).
+
+Chosen Breakpoints:
+
+```{r}
+point <- data.frame(
+  mu = c(16, 20, 20, 30, 20, 20, 16, 20, 16, 20, 16, 20, 20, 16, 20, 25, 27, 20),
+  sig = c(20, 30, 25, 20, 20, 27, 16, 20, 20, 20, 20, 20, 16, 16, 25, 26, 25, 20),
+  sh = c(15, 30, 22, 20, 14, 18, 25, 25, 20, 16, 20, 20, 20, 20, 25, 25, 25, 25)
+)
+point
+```
+
+
+## 3. Model fitting{#gev}
+
+$$\eta\in\{\mu,\sigma,\xi\}$$
+
+$\mu$: location parameter
+
+$\sigma$: scale parameter
+
+$\xi$: shape parameter
+
+### 3.1 Linear model{#linear}
+
+#### 3.1.1 Stationary model{#stationary}
+
+$$\eta=\beta_0$$
+
+#### 3.1.2 Single trend{#single}
+
+$$\eta(t)=\beta_0+\beta_1{t}$$
+
+#### 3.1.3 Double trends{#double}
+
+Breakpoints are selected by moving window plots.
+
+$$\eta(t)=\eta_0+\eta_1(1-D_1)(t-t_1)+\eta_2D_1(t-t_1)$$
+   
+   where $D_1=\begin{cases}1, &t>{t_1} \\0, &other\ values\end{cases}$
+
+All possible combination of parameter formulations:
+
+```{r} 
+  para=c("double", "single", "stationary")
+  co <- data.frame(mu = NA, sig = NA, sh = NA)
+  n <- 1
+  for (i in 1:3) {
+    for (j in 1:3) {
+      for (h in 1:3) {
+        co[n, 1] <- para[i]
+        co[n, 2] <- para[j]
+        co[n, 3] <- para[h]
+        n <- n + 1
+      }
+    }
+  }
+co
+```
+
+#### 3.1.4 Result
+
+The plots present 4 types of models. 
+
+-  stationary model: all parameters are stationary.
+
+-  single trend model: best model of those contains stationary or single trend.
+
+-  double trend model: best model of those have at least one parameter with double trend.
+
+-  best model: best model of all linear models. 
+
+They are selected by AIC.
+
+```{r, fig.width=12,fig.height=40}
+load("plot.Rdata")
+do.call(ggarrange, plot_final)
+```
+
+### 3.2 Abrupt model{#test}
+
+$$\eta=\beta_0$$
+
+
+
+$$\eta(t)=\beta_0+\beta_1{t}$$
+or abrupt shift
+
+Breakpoints are selected by moving window plots.
+
+$$\eta(t)=\beta_0+\beta_1(1-D_1)(t-t_1)+\beta_1^*(1-D_1)+\beta_2D_1(t-t_1)+\beta_2^*D_1$$
+   
+   where $D_1=\begin{cases}1, &t>{t_1} \\0, &other\ values\end{cases}$
+   
+But at least one of the parameters belongs to abrupt shifts. The models without abrupt shift have been estimated in the precious part.
+
+Select best abrupt shift model according to AIC.
+
+Plots can be seen in shiny.(Link is in part 4)
+
+### 3.3 Quadratic model{#quad}
+
+$$\eta=\beta_0$$
+
+$$\eta(t)=\beta_0+\beta_1{t}$$
+
+Quadratic trend
+
+$$\eta(t)=\beta_0+\beta_1t+\beta_2t^2$$
+
+At least one of the parameters belongs to quadratic trend.The models without quadratic trend have been estimated in the precious part.
+
+Select best quadratic model according to AIC.
+
+Plots can be seen in shiny.(Link is in part 4)
+
+#### 3.4 Exponantial Model
+  
+$$\sigma(t)=e^{\beta_0}$$
+
+$$\sigma(t)=e^{\beta_0+\beta_1t}$$
+
+Breakpoints are selected by moving window plots.
+
+$$\sigma(t)=e^{\beta_0+\beta_1(1-D_1)(t-t_1)+\beta_2D_1(t-t_1)}$$
+
+where $D_1=\begin{cases}1, &t>{t_1} \\0, &other\ values\end{cases}$
+
+$\mu$ and $\xi$ are stationary, single trend or double trend.
+
+
+```{r, fig.width=12,fig.height=40}
+load("exp.Rdata")
+do.call(ggarrange, plot_final)
+```
+
+## 4 Model Compare{#shiny}
+
+The plots display best model among all GEV models selected by AIC.
+
+```{r, fig.width=12,fig.height=40}
+load("best.Rdata")
+do.call(ggarrange, plot_final)
+```
+
+This [Model Fit Shiny](https://mengranli.shinyapps.io/model_fit/) *(link: https://mengranli.shinyapps.io/model_fit/)* is convenient to compare different models among different regions. Plots may be clear selecting 3-6 regions once. (Expenontial model is not included in the app since its estimation is too large which will make other estimations compressed.)
+
+Group:
+
+-  s_fit: stationary model in part [3.1 (1)](#stationary)
+
+-  single_fit: best single trend model in part [3.1 (2)](#single)
+
+-  double_fit: best double trend model in part [3.1 (3)](#double)
+
+-  linear_fit: best linear model in part [3.1](#linear)
+
+-  abrupt_fit: best abrupt model in part [3.2](#test)
+
+-  quad_fit: best quadratic model in part [3.3](#quad)
+
+-  best_fit: best model of all models estimated in part [3](#gev)
+
+-  window: estimation of moving windows in part [2](#mov)
+
+Black dots in the first column are original data of annual maxima.
+
+## 5 Issues
+
+1. Given the rare observations (40) but high dimensions (some models reach around 15), the matrix sometimes is singular so that MLE estimation is not available. 
+
+2. Missing or incomplete confidence intervals is also caused by same reason. Bootstrap can not be carried out neither.
+
+3. Abrupt model should have two stages that are not connected, but when I draw the plot in ggplot, geom_line will connect two points (t, t+1) automatically. It may take some time to modify this. If it is necessary, I will fix this problem.
+
+4. Exponential models look strange (I have checked code to estimate these models many times, and at least up to now, there is no mistake).
+
+## 6 GPD models
+
+There still are two questions:
+
+1. Threshold Choice Plots (tcplot) keep stationary in eg. (400, 1000), which is a really wide interval. And when u=400, there are 481 observations, when u=600 there are 92 observations, while when u=1000, there only 10 left. Given that we have $n\times10^{6}$ observations totally for each region, is it reasonable to select a lower threshold, in this case u=400? 
+
+2. AIC changes greatly with the number of observation. So do likelihood. It may not a good a idea to compare GPD models by AIC? Or just compare models with stationary parameter or single trend after choosing threshold. And is there any way to compare GEV with GPD directly?
+
+3. Should GPD models be estimated in same forms of GEVs, stationary, single, double, double, and others? (May not quite difficult to realise)

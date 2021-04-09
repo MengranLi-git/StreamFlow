@@ -1,25 +1,24 @@
 {
-    "id": "B0B20F2F",
-    "path": null,
+    "id": "0B46AAB7",
+    "path": "F:/StreamFlow/code/All_exp.R",
     "project_path": null,
     "type": "r_source",
     "hash": "0",
     "contents": "",
     "dirty": true,
-    "created": 1617144883574.0,
+    "created": 1617745063767.0,
     "source_on_save": false,
-    "relative_order": 4,
+    "relative_order": 3,
     "properties": {
-        "tempName": "Untitled2",
-        "cursorPosition": "20,0",
+        "cursorPosition": "9,0",
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 7018332503360763489,
-    "encoding": "",
+    "lastKnownWriteTime": 1617048309,
+    "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1617277275876,
+    "last_content_update": 1617837858955,
     "read_only": false,
     "read_only_alternatives": []
 }

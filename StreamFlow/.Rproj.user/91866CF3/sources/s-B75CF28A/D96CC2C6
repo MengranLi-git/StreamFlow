@@ -1,25 +1,24 @@
 {
-    "id": "3C995EB0",
-    "path": "F:/StreamFlow/code/All_gev.R",
+    "id": "D96CC2C6",
+    "path": "F:/StreamFlow/code/fit_linear.R",
     "project_path": null,
     "type": "r_source",
     "hash": "0",
     "contents": "",
     "dirty": false,
-    "created": 1617703613466.0,
+    "created": 1617816908503.0,
     "source_on_save": false,
-    "relative_order": 5,
+    "relative_order": 7,
     "properties": {
-        "tempName": "Untitled5",
-        "cursorPosition": "11,0",
+        "cursorPosition": "97,32",
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1617723415,
+    "lastKnownWriteTime": 1617048497,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1617723415,
+    "last_content_update": 1617048497,
     "read_only": false,
     "read_only_alternatives": []
 }

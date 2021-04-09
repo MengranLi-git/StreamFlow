@@ -1,0 +1,103 @@
+---
+title: "Untitled"
+author: "Mengran Li"
+date: "2021/4/7"
+output: pdf_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+General step:
+
+1. Moving windows
+
+2. Model fitting
+
+3. Confidence Interval
+
+4. Model Compare
+
+## Moving windows
+
+## Model fitting
+
+### GEV models
+
+#### Linear model
+
+(@) Stationary model
+
+$$\eta=\eta_0$$
+
+(@) Single trend model
+
+$$\eta(t)=\beta_0+\beta_1{t}$$
+
+(@) Double trends model
+
+$$\eta(t)=\eta_0+\eta_1(1-D_1)(t-t_1)+\eta_2D_1(t-t_1)$$
+   
+   where $D_1=\begin{cases}1, &t>{t_1} \\0, &other\ values\end{cases}$
+
+```{r results = "asis", echo=FALSE} 
+  para=c("double", "single", "stationary")
+  co <- data.frame(mu = NA, sig = NA, sh = NA)
+  n <- 1
+  for (i in 1:3) {
+    for (j in 1:3) {
+      for (h in 1:3) {
+        co[n, 1] <- para[i]
+        co[n, 2] <- para[j]
+        co[n, 3] <- para[h]
+        n <- n + 1
+      }
+    }
+  }
+knitr::kable(co, caption = "All possible formulations")
+```
+
+#### Abrupt model
+
+$$\eta=\eta_0$$
+
+
+
+$$\eta(t)=\beta_0+\beta_1{t}$$
+or
+
+$$\eta(t)=\eta_0+\eta_1(1-D_1)(t-t_1)+\eta_1^*(1-D_1)+\eta_2D_1(t-t_1)+\eta_2^*D_1$$
+   
+   where $D_1=\begin{cases}1, &t>{t_1} \\0, &other\ values\end{cases}$
+   
+But at least one of the parameters belongs to abrupt shifts. 
+
+#### Quadratic model
+
+$$\eta=\eta_0$$
+
+$$\eta(t)=\beta_0+\beta_1{t}$$
+
+Quadratic 
+
+$$\eta(t)=\beta_0+\beta_1t+\beta_2t^2$$
+
+At least one of the parameters belongs to quadratic formula.
+
+#### Exponantial Model
+  
+$$\sigma(t)=e^{\beta_0}$$
+
+$$\sigma(t)=e^{\beta_0+\beta_1t}$$
+
+$$\sigma(t)=e^{\beta_0+\beta_1t+\beta_2t^2}$$
+
+### GPD models
+
+## Confidence Interval
+
+## Model Compare

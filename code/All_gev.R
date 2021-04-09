@@ -1,12 +1,12 @@
 #### read all function ####
 setwd("F:/Streamflow/code/")
-source("CI.R")
+source("Moving_window.R")
 source("cut_breakpoint.R")
+source("ll.R")
 source("fit_abrupt.R")
 source("fit_linear.R")
 source("fit_quad.R")
-source("Moving_window.R")
-source("ll.R")
+source("CI.R")
 source("graph_data.R")
 source("plot_para.R")
 
@@ -16,7 +16,7 @@ library(ismev)
 library(gridExtra)
 
 #### read data ####
-setwd("F:\\StreamFlow")
+setwd("F:/StreamFlow")
 load("Stream.Rdata")
 Stream <- Stream[Q >= 0]
 Stream_plot <- Stream[, c("Site", "Q", "DecYear", "Month", "Region")]

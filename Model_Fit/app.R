@@ -1,35 +1,39 @@
-load("fit.Rdata")
+load("ModelFit.Rdata")
 source("plot_para.R")
 library(shiny)
 library(tidyverse)
 library(rlang)
-library(gridExtra)
+library(ggpubr)
 # Define UI for application that draws a histogram
 ui <- fluidPage(
   fluidRow(
     column(9,
-           wellPanel(style = "background-color: #fff; border-color: #2c3e50; height: 860px;",
-                     plotOutput("plot1", height = 800))),
+           wellPanel(style = "background-color: #fff; border-color: #2c3e50; height: 780px;",
+                     plotOutput("plot1",height = 740))),
     column(3,
            fluidRow(column(12,
                            checkboxGroupInput("var", 
-                                              label = "Choose a model to present",
+                                              label = "Choose models to present",
                                               choices = list("best_fit",
+                                                             "linear_fit",
                                                              "s_fit",
                                                              "single_fit",
                                                              "double_fit",
                                                              "quad_fit",
                                                              "abrupt_fit"),
-                                              selected = "Percent White"))
+                                              selected = list("linear_fit",
+                                                              "s_fit",
+                                                              "quad_fit",
+                                                              "abrupt_fit")))
                     ),
            fluidRow(column(12,
                            checkboxGroupInput("id", 
-                                              label = "Choose a region to present",
+                                              label = "Choose regions to present",
                                               choices = list("1","2","3", "4","5", 
                                                              "6","7","8","9","10",
                                                              "11","12","13","14" ,"15",
                                                              "16","17","18"),
-                                              selected = "Percent White"))
+                                              selected = list(1, 2, 3, 4)))
            )
            )
   )
@@ -52,7 +56,12 @@ server <- function(input, output) {
       plot_final[[3 * (i - 1) + 3]] <- p[[3]]
     }
     plot_final[["ncol"]] <- 3
-    do.call(grid.arrange, plot_final)
+    plot_final[["nrow"]] <- length(id())
+    plot_final[["common.legend"]] <- TRUE
+    plot_final[["heights"]] <- 2
+    plot_final[["widths"]] <- 2
+    
+    do.call(ggarrange, plot_final)
   })
   
 }

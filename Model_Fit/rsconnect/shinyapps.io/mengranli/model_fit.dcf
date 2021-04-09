@@ -1,0 +1,12 @@
+name: model_fit
+title:
+username:
+account: mengranli
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3928348
+bundleId: 4448436
+url: https://mengranli.shinyapps.io/model_fit/
+when: 1617920841.24845
+asMultiple: FALSE
+asStatic: FALSE
