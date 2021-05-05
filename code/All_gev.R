@@ -13,7 +13,7 @@ source("plot_para.R")
 library(data.table)
 library(tidyverse)
 library(ismev)
-library(gridExtra)
+library(ggpubr)
 
 #### read data ####
 setwd("F:/StreamFlow")
@@ -45,18 +45,22 @@ for (i in 1:18) {
   fit3 <- fit_abrupt(x, point[i, 1], point[i, 2], point[i, 3])
 
   fit_list <- list(fit1[[1]], fit1[[2]], fit1[[3]], fit1[[4]], fit2, fit3)
+  r= which.min(c(fit1[[3]]$AIC,
+                 fit1[[4]]$AIC,
+                 fit2$AIC,
+                 fit3$AIC))
+    fit_list[[7]] <- fit_list[[r+2]]
 
   est <- graph_data(
     fit_list,
-    c("best_fit", "s_fit", "single_fit", "double_fit", "quad_fit", "abrupt_fit")
+    c("linear_fit", "s_fit", "single_fit", "double_fit", "quad_fit", "abrupt_fit", "best_fit")
   )
   gra[[i]] <- plot_para(
     est[[1]], est[[2]], est[[3]],
-    Region, i
-  )
-  # ignore = c("double_fit","single_fit"))
+    Region, i,
+  ignore = c("linear_fit","s_fit", "single_fit", "double_fit", "quad_fit", "abrupt_fit"))
+  print(paste("region",i))
 }
-
 
 #### arrange plot ####
 plot_final <- list()
@@ -68,29 +72,10 @@ for (i in 1:6) {
 }
 plot_final[["ncol"]] <- 3
 plot_final[["nrow"]] <- 6
+plot_final[["legend"]] <- FALSE
+#plot_final[["common.legend"]] <- TRUE
 
-do.call(grid.arrange, plot_final)
+#save(plot_final,file = "best.Rdata")
+do.call(ggarrange, plot_final)
 
-plot_final <- list()
-for (i in 7:12) {
-  p <- gra[[i]]
-  plot_final[[3 * (i - 7) + 1]] <- p[[1]]
-  plot_final[[3 * (i - 7) + 2]] <- p[[2]]
-  plot_final[[3 * (i - 7) + 3]] <- p[[3]]
-}
-plot_final[["ncol"]] <- 3
-plot_final[["nrow"]] <- 6
-
-do.call(grid.arrange, plot_final)
-
-plot_final <- list()
-for (i in 13:18) {
-  p <- gra[[i]]
-  plot_final[[3 * (i - 13) + 1]] <- p[[1]]
-  plot_final[[3 * (i - 13) + 2]] <- p[[2]]
-  plot_final[[3 * (i - 13) + 3]] <- p[[3]]
-}
-plot_final[["ncol"]] <- 3
-plot_final[["nrow"]] <- 6
-
-do.call(grid.arrange, plot_final)
+save(gra,file="plot.Rdata")

@@ -12,6 +12,7 @@ graph_data <- function(fit, name=c("best_fit","s_fit","single_fit","double_fit",
   est_mu$Group <- rep(name,each=40)
   est_sig$Group <- rep(name,each=40)
   est_sh$Group <- rep(name,each=40)
+  
   est <- list()
   est[["est_mu"]] <- est_mu
   est[["est_sig"]] <- est_sig

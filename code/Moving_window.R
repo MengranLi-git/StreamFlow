@@ -6,7 +6,8 @@ Moving_window <- function(x, win=15, url, save=TRUE, name){
   parameter <- as.data.frame(matrix(NA, ncol=4, nrow=n_row))
   names(parameter) <- c("t","location","scale","shape")
   for (i in 1:(n_row-2*n_sep)){
-    fit <- gev.fit(x$V1[i:(i+win)])
+    in2 <- log(sqrt(6 * var(x$V1[i:(i+win)]))/pi)
+    fit <- gev.fit(x$V1[i:(i+win)],siglink = exp, siginit=in2, show = FALSE)
     parameter[i+n_sep,1] <- i+n_sep
     parameter[i+n_sep,2:4] <- fit$mle
   }

@@ -1,1 +1,7 @@
 load("fit.Rdata")
+
+setwd("F:/Project/YinuoZhou")
+load(".Rdata")
+
+Input("var")
+

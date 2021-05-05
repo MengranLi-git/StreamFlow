@@ -26,29 +26,34 @@ point <- data.frame(mu=c(16,20,20,30,20,20,16,20,16,20,16,20,20,16,20,25,27,20),
 
 gra <- list()
 for(i in 1:18){
+  i=18
   assign("Region",Stream_plot[Region==index[i]][,max(Q),by=DecYear])
   #MOV
   MOV <- Moving_window(x=Region, win = 10, url = "F:/StreamFlow/Plot/Moving_Windows", 
                        save = FALSE, name = quote(Region1))
   x <- Region$V1
   fit1 <- fit_exp(x,point[i,1],point[i,2],point[i,3])
-  
+  mu=point[i,1]
+  sig=point[i,2]
+  sh=point[i,3]
   est <- graph_data(fit1,name=c("best_fit","s_fit","single_fit","double_fit"))
   gra[[i]] <- plot_para(est[[1]],est[[2]],est[[3]],
                         Region,i)
   # ignore = c("double_fit","single_fit"))
 }
 #### arrange plot ####
+setwd("F:/StreamFlow/Report")
 plot_final <- list()
-for(i in 1:6){
+for(i in 1:18){
   p <- gra[[i]]
   plot_final[[3*(i-1)+1]] <- p[[1]]
   plot_final[[3*(i-1)+2]] <- p[[2]]
   plot_final[[3*(i-1)+3]] <- p[[3]]
 }
 plot_final[["ncol"]] = 3
-plot_final[["nrow"]] = 6
-
+plot_final[["nrow"]] = 18
+plot_final[["common.legend"]] <- TRUE
+save(plot_final,file="exp.Rdata")
 do.call(grid.arrange,plot_final)
 
 plot_final <- list()

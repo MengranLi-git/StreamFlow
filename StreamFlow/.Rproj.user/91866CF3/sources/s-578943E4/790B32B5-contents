@@ -1,0 +1,16 @@
+est[[1]] %>%
+  filter(Group %in% "best_fit") %>%
+  select(est)
+
+fit_list[[1]]$par
+fit_list[[1]]$formulation
+
+cut_breakpoint(1:length(x), point[i, 3])
+
+x, point[i, 1], point[i, 2], point[i, 3]
+
+double_sh <- cut_breakpoint(1:length(x), point[i, 3], TRUE)
+
+para=c("break", "single", "s")
+
+ll_sh <- ll("break", para, double_sh,TRUE)

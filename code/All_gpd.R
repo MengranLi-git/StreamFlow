@@ -13,25 +13,26 @@ for(i in 1:18){
 }
 
 setwd("F:/StreaFlow/Plot/MeanResidualLife")
+par(mfrow=c(3,6))
 for(i in 1:18){
-  png(paste0("Region",i,".png"))
-  mrlplot(get(paste0("Region",i)),sub=paste0("Region",i))
-  dev.off()
+#  png(paste0("Region",i,".png"))
+  mrlplot(get(paste0("Region",1)),sub=paste0("Region",1))
 }
-
+dev.off()
 
 data = Region5
 tcplot(data,c(500,1000))
 
-data[data>700]
+length(data[data>700])
 
-fit1 <- gpd.fit(data, threshold=580)
+fit1 <- gpd.fit(data, threshold=1000)
 fit2 <- gpd.fit(data, threshold=500)
 fit3 <- gpd.fit(data, threshold=800)
 fit4 <- gpd.fit(data, threshold=300)
 fit5 <- gpd.fit(data, threshold=600)
 
-
+fit1$nllh
+fit2$nllh
 # s
 fit2 <- gpd.fit(data, threshold=600)
 # single
