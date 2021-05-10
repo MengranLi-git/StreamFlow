@@ -1,12 +1,8 @@
-data(portpirie)
-x <- portpirie[,2]
-gev.fit(portpirie[,2],siglink=exp)
 function (xdat, ydat = NULL, mul = NULL, sigl = NULL, shl = NULL, 
-          mulink = identity, siglink = exp, shlink = identity, 
+          mulink = identity, siglink = identity, shlink = identity, 
           muinit = NULL, siginit = NULL, shinit = NULL, show = TRUE, 
           method = "Nelder-Mead", maxit = 10000, ...) 
 {
-  xdat <- x
   z <- list()
   npmu <- length(mul) + 1
   npsc <- length(sigl) + 1
@@ -62,12 +58,9 @@ function (xdat, ydat = NULL, mul = NULL, sigl = NULL, shl = NULL,
                                                     1))
   }
   x <- optim(init, gev.lik, hessian = TRUE, method = method, 
-             control = list(maxit = maxit))
+             control = list(maxit = maxit, ...))
   z$conv <- x$convergence
   mu <- mulink(mumat %*% (x$par[1:npmu]))
-  
-
-  
   sc <- siglink(sigmat %*% (x$par[seq(npmu + 1, length = npsc)]))
   xi <- shlink(shmat %*% (x$par[seq(npmu + npsc + 1, length = npsh)]))
   z$nllh <- x$value
@@ -89,3 +82,5 @@ function (xdat, ydat = NULL, mul = NULL, sigl = NULL, shl = NULL,
   class(z) <- "gev.fit"
   invisible(z)
 }
+<bytecode: 0x0000016ddb0bdbf0>
+  <environment: namespace:ismev>
