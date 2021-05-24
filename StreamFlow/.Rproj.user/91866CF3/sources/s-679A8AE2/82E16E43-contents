@@ -10,11 +10,13 @@ source("CI.R")
 source("graph_data.R")
 source("plot_para.R")
 source("return_level.R")
+source("gev_fix.R")
 
 library(data.table)
 library(tidyverse)
 library(ismev)
 library(ggpubr)
+library(strucchange)
 
 #### read data ####
 setwd("F:/StreamFlow")
@@ -24,27 +26,38 @@ Stream_plot <- Stream[, c("Site", "Q", "DecYear", "Month", "Region")]
 index <- Region_name[-(19:21), 2]
 
 #### define breakpoint ####
-point <- data.frame(
-  mu = c(16, 20, 20, 30, 20, 20, 16, 20, 16, 20, 16, 20, 20, 16, 20, 25, 27, 20),
-  sig = c(20, 30, 25, 20, 20, 27, 16, 20, 20, 20, 20, 20, 16, 16, 25, 26, 25, 20),
-  sh = c(15, 30, 22, 20, 14, 18, 25, 25, 20, 16, 20, 20, 20, 20, 25, 25, 25, 25)
-)
+sh <- numeric(18)
+se <- numeric(18)
+for (i in 1:18) {
+  Region <- Stream_plot[Region == index[i]][, max(Q), by = DecYear]
+  fit <- gev.fit(Region$V1,Region,show = FALSE)
+  sh[i] <- fit$mle[3]
+  se[i] <- fit$se[3]
+}
 
+point <- matrix(NA,ncol=3,nrow=18)
+for (i in 1:18) {
+  assign("Region", Stream_plot[Region == index[i]][, max(Q), by = DecYear])
+  MOV <- Moving_window(
+    x = Region, win = 10, url = "F:/StreamFlow/Plot/Moving_Windows",
+    save = FALSE, name = quote(Region1)
+  )
+  x <- Region$V1
+  points[i,1] <-  breakpoints(Fstats(MOV[,2] ~ 1))$breakpoints
+  points[i,2] <-  breakpoints(Fstats(MOV[,3] ~ 1))$breakpoints
+  points[i,3] <-  breakpoints(Fstats(x ~ 1))$breakpoints
+}
+point <- as.data.frame(point)
 #### fit models and plot ####
 gra <- list()
 return_plot <- list()
 for (i in 1:18) {
   assign("Region", Stream_plot[Region == index[i]][, max(Q), by = DecYear])
-  # MOV
-  #  MOV <- Moving_window(
-  #    x = Region, win = 10, url = "F:/StreamFlow/Plot/Moving_Windows",
-  #    save = FALSE, name = quote(Region1)
-  #  )
 
   x <- Region$V1
-  fit1 <- fit_linear(x, point[i, 1], point[i, 2], point[i, 3])
-  fit2 <- fit_quad(x)
-  fit3 <- fit_abrupt(x, point[i, 1], point[i, 2], point[i, 3])
+  fit1 <- fit_linear_sh(x, point[i, 1], point[i, 2], sh[i],se[i])
+  fit2 <- fit_quad_sh(x,sh[i],se[i])
+  fit3 <- fit_abrupt_sh(x, point[i, 1], point[i, 2], sh[i],se[i])
 
   fit_list <- list(fit1[[1]], fit1[[2]], fit1[[3]], fit1[[4]], fit2, fit3)
   r <- which.min(c(
@@ -118,7 +131,7 @@ for (i in 1:18) {
 
 #### arrange plot ####
 plot_final <- list()
-for (i in 1:6) {
+for (i in 13:18) {
   p <- gra[[i]]
   plot_final[[3 * (i - 1) + 1]] <- p[[1]]
   plot_final[[3 * (i - 1) + 2]] <- p[[2]]
@@ -132,10 +145,10 @@ plot_final[["legend"]] <- FALSE
 # save(plot_final,file = "best.Rdata")
 do.call(ggarrange, plot_final)
 
-ggsave("first.png", plot = last_plot(), width = 6, height = 8)
+ggsave("third_sh.png", plot = last_plot(), width = 6, height = 8)
 
 plot_final <- list()
-for (i in 13:18) {
+for (i in 7:12) {
   p <- return_plot[[i]]
   plot_final[[3 * (i - 1) + 1]] <- p[[1]]
   plot_final[[3 * (i - 1) + 2]] <- p[[2]]

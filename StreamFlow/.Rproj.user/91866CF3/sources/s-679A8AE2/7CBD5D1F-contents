@@ -1,0 +1,21 @@
+library(ismev)
+setwd("F:/StreamFlow")
+load("Stream.Rdata")
+Stream <- Stream[Q >= 0]
+Stream_plot <- Stream[, c("Site", "Q", "DecYear", "Month", "Region")]
+index <- Region_name[-(19:21), 2]
+sh <- numeric(18)
+se <- numeric(18)
+for (i in 1:18) {
+  Region <- Stream_plot[Region == index[i]][, max(Q), by = DecYear]
+  fit <- gev.fit(Region$V1,Region,show = FALSE)
+  sh[i] <- fit$mle[3]
+  se[i] <- fit$se[3]
+}
+
+gev_fix <- gev.fit
+trace("fit_linear",edit=TRUE)
+
+gev.fit(Region$V1,Region)
+
+fit$se
