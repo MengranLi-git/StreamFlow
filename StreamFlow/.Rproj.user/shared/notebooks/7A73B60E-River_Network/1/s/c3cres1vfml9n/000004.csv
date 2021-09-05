@@ -1,0 +1,4 @@
+"0","m <- matrix(NA, ncol = 24, nrow = 24)"
+"0","m[lower.tri(m)] <- 1:276"
+"0",""
+"0","theta <- madogram(DataEvents, as.matrix(RiverDisWt))"

@@ -1,0 +1,27 @@
+{
+    "id": "46DD2B1E",
+    "path": "F:/StreamFlow/joint_fitting/river_network.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1626100399434.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "tempName": "Untitled4",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "30,54",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1630052480,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1630052480973,
+    "read_only": false,
+    "read_only_alternatives": []
+}

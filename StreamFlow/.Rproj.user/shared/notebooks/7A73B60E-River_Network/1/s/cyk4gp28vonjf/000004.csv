@@ -1,0 +1,7 @@
+"0","data_plot %>% "
+"0","  group_by(station, DecYear) %>% "
+"0","  summarise(meanQ=mean(Q)) %>%"
+"0","  ggplot(aes(x=DecYear,y=meanQ,color=station))+"
+"0","  geom_line()"
+"2","`summarise()` has grouped output by 'station'. You can override using the `.groups` argument.
+"

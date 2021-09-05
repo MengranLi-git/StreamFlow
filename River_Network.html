@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Extremes on River Networks</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mengran Li" />
+    <meta name="date" content="2021-08-26" />
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+    <script src="libs/jquery-1.12.4/jquery.min.js"></script>
+    <link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+    <script src="libs/leaflet-1.3.1/leaflet.js"></script>
+    <link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+    <script src="libs/proj4-2.6.2/proj4.min.js"></script>
+    <script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+    <link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+    <script src="libs/leaflet-binding-2.0.4.1/leaflet.js"></script>
+    <script src="libs/kePrint-0.0.1/kePrint.js"></script>
+    <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Extremes on River Networks
+### Mengran Li
+### 2021-08-26
+
+---
+
+
+
+
+# Data
+
+
+
+.pull-left[
+<div id="htmlwidget-78878202f691d4568028" style="width:100%;height:504px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-78878202f691d4568028">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addCircleMarkers","args":[[47.23216599,46.5405128,45.8260765,45.1266318,44.9444444,44.74580095,44.0555186,41.78058635,43.6207916,42.7194158,41.6805439,41.57776716,40.72780589,41.32697786,40.5530943,39.7033802,42.75994409,42.06582096,41.6566832,41.42377778,41.1780861,45.29552046,44.9332903,44.1688553,44.69301845,42.46359796,41.76697439],[-93.5302144,-93.7074712,-94.3552782,-93.2968947,-93.0881111,-92.8002026,-91.6376487,-90.252073,-94.9851299,-94.2205182,-93.6682755,-93.6054951,-91.959617,-88.7175739,-89.77733,-90.6454047,-93.6218489,-92.9076997,-91.5410017,-91.4785278,-91.1820939,-96.4442231,-95.7336374,-94.0032886,-93.641902,-91.8951722,-90.5348588],3,null,null,{"interactive":true,"className":"","stroke":false,"color":"red","weight":5,"opacity":0.5,"fill":true,"fillColor":"red","fillOpacity":0.4},null,null,null,null,["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27"],{"interactive":false,"permanent":true,"direction":"top","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":true,"className":"","sticky":true},null]},{"method":"addWMSTiles","args":["https://basemap.nationalmap.gov/arcgis/services/USGSHydroCached/MapServer/WmsServer",null,null,{"styles":"","format":"image/jpeg","transparent":false,"version":"1.1.1","layers":"0"}]}],"limits":{"lat":[39.7033802,47.23216599],"lng":[-96.4442231,-88.7175739]}},"evals":[],"jsHooks":[]}</script>
+]
+
+.pull-right[
+
+Daily discharge from 27 gauging stations on 6 rivers during 1980-2020.
+
+|River|Number of Stations|
+|---|---|
+|Mississippi River| 8 stations|
+|Des Moines River| 5 stations|
+|Illinois River| 3 stations|
+|Iowa River| 5 stations|
+|Minnesota River| 4 stations|
+|Wapsipinicon River| 2 stations|
+
+We selected data in `June, July and August`. The annual maxima occurred in these three months. Thus **N = 40×92 = 3680**, that is, 40 years of 92 daily observations
+in each station.
+]
+
+---
+# Aim and Framework
+
+## Aim
+
+Study the dependence in the river network
+
+## Framework
+
+- Exploratory data analysis to check the data pattern
+
+- Marginal fitting to check the trend
+
+- Declustering to eliminate temporal cluster and exact flood events
+
+- Joint fitting to check the asymptotic dependence
+
+  - Extremal coffecients based on madogram
+  
+  - Extremal coffecients based on bivariate Hüsler–Reiss distribution
+  
+  - Hydrological distances and Euclidean distances
+
+---
+
+# EDA
+
+![](River_Network_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+-  We explored the annual mean discharges grouped by month. 
+
+-  The plot shows that there is no obvious trend, except that it was unusually high in 1992. 
+
+-  The annual mean discharges grouped by stations also have no obvious trends.
+
+---
+
+# Marginal Fitting
+
+Before fitting the multivariate dependence model, we assess the univariate tail behaviour at individual gauging stations
+
+.pull-left[
+- To check the dependence 
+
+- To obtain the constants `\(\mu,\ \sigma,\ \xi\)`
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; station &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; DecYear &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; maxQ &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 05211000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1980 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 17.13169 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 05211000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1981 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 70.79212 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 05211000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1982 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 78.72083 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 05211000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1983 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 86.93272 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 05211000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1984 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 58.33270 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 05211000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1985 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84.95054 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+
+- We take the annual maxima and fit the GEV model.
+
+- We fit the stationary model, single trend model and double trend model, respectively.
+
+- We use the AIC as the model selection criteria and use the likelihood ratio test to check the significance. 
+
+- The results show that the stationary models are best for all stations.
+]
+
+
+---
+
+# Decluster
+
+
+
+Extreme discharges at a given station occur in clusters due to temporal dependence, which must be removed for spatial modelling.
+
+This step is to remove the clusters due to temporal dependence and identify the flood events for gauging stations to check the dependence.
+
+1. To identify nonoverlapping windows of length `\(p\)` days in each of the 40 summer periods.
+
+2. To consider the day with the highest rank across all 27 series
+
+3. To take a window of p days centred upon the chosen day and form an event by taking the largest observation for each series within this window
+
+4. To delete the data in this window and then repeat the process of forming events, stopping when no windows of p consecutive days remain
+
+---
+# Flood Events
+
+.pull-left[
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; X05211000 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; X05227500 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; X05267000 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1980 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10.505550 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 30.86536 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 93.72876 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1980 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.758816 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 17.32991 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41.34260 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1980 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 17.131692 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 29.44952 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 91.46341 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1980 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.560598 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 29.44952 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 56.63369 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1980 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8.126935 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 25.99487 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 92.87926 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1980 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8.041984 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 18.57585 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 69.09311 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1980 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.937627 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 15.51763 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 42.47527 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1980 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.022578 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 19.85011 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 62.01389 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1980 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.475647 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 13.84694 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46.15646 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1981 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 14.441592 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 90.04757 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 225.96843 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1981 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41.059427 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 115.53273 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 250.03775 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1981 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 40.776259 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 60.59805 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 122.04561 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1981 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 60.598051 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 103.07332 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 182.36049 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1981 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 24.210904 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 99.67530 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 188.59020 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1981 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 57.766367 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84.10103 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 148.66344 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1981 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10.307332 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 67.39409 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 140.16839 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1981 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 70.792116 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 97.40995 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 160.83969 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1982 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48.421807 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 95.71094 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 200.76644 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1982 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 62.297062 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 88.91490 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 190.28921 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1982 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 75.889148 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 224.55259 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 481.38639 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+
+For example, there are 9 flood events in 1980. We extract the data at each 27 station in the same day.
+
+
+There are 356 events during the 40 years, thus the number of event data is `\(356\times27=9612\)`
+
+]
+
+
+---
+# Joint Fitting
+
+- asymptotic dependence
+
+- extremal coefficients `\(\hat\theta\)`, Madogram-based estimates
+
+- extremal coefficients `\(\hat\theta_{HR}\)`, fit the bivariate Hüsler–Reiss distribution
+
+Hüsler–Reiss distribution approximates the extremal dependence of the data well.
+
+We apply the `Hydrological distances` and `Euclidean distances`.
+
+The coordinates of altitude weighted center at stations 14, 15, 16 are abnormal, and the three stations are out of the main stream, thus we remove the three stations.
+
+---
+# Extreme Coffecients for Hüsler–Reiss 
+
+
+.pull-left[
+
+## Hydrological distance
+
+
+
+
+
+![](River_Network_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+
+## Euclidean distance
+
+![](River_Network_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+]
+
+The connected and unconnected pairs can be separated more clearly in hydrological distances than in Euclidean distances 
+
+---
+# Extreme Coffecients for madogram
+
+.pull-left[
+
+## Hydrological distance
+
+
+
+![](River_Network_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+
+## Euclidean distance
+
+![](River_Network_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
+]
+
+---
+# Madogram vs HR
+
+.pull-left[
+![](River_Network_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+
+- Blue crosses: flow-connected pairs
+
+- Black circles: flow-unconnected pairs
+
+- Empirical: Madogram
+
+- Fitted Model: HR
+
+The estimations of Madogram are smaller than those of HR in hydrological distance.
+
+]
+
+
+
+
+
+
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

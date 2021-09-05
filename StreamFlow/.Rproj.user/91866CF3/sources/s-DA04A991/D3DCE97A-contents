@@ -1,0 +1,67 @@
+#### EC for HR ####
+
+Theta.cen <- matrix(1,ncol = NoSt,nrow = NoSt)
+
+for(i in 1:(NoSt-1))
+  for(j in (i+1):NoSt) {
+    Data.biv <- DataEvents[,c(i,j)]
+    Theta.cen[i,j] <- CensoredEstimationHR(Data.biv, thresholds = .90)
+    Theta.cen[j,i] <- Theta.cen[i,j]
+    print(paste("i=",i,"j=",j))
+  }
+
+### Transform to Pareto ###
+
+TSNew <- matrix(0,dim(DataEvents)[1],dim(DataEvents)[2])
+for (i in 1:dim(DataEvents)[2]) {
+  TSNew[,i] <- Margin2Pareto(DataEvents[,i], empirical = TRUE) 
+}
+
+
+### CENSORED ESTIMATION: This is computationally expensive (to skip it, just go to "par  <- fitM4$par" for the result which is already loaded)###
+
+# river distance
+locations <- new %>% select(dec_long_va, dec_lat_va)
+colnames(locations) <- c("lon", "lat")
+p <- cbind(locations$lon, locations$lat)
+RiverDis <- distm(p, p, fun = distHaversine)
+RiverDis <- RiverDis/1000
+
+theta0 <- 2 #1*max(RiverDisChos)
+alpha0 <- 1.6
+s0 <- 289.73 ##max(CatCntrWtKmChos) ## FIX
+riv.lmb0 <- .3
+euc.lmb0 <- .05
+beta0 <- 1.1
+c0 <- .5
+
+fitM4 <- pareto_BR_River_cen(
+  data = TSNew,
+  riv.dist = RiverDis,
+  euc.coord = as.matrix(locations),
+  riv.weights = w,
+  u=quantile(TSNew, .90),   
+  init= c(theta0, alpha0, s0, riv.lmb0, euc.lmb0, beta0, c0),
+  fixed=c(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
+  maxit = 200,
+  method= "BFGS")
+
+par  <- fitM4$par 
+
+weight <- new %>% select(site_no, alt_va)
+Et <- matrix(0,ncol=27,nrow=27)
+diag(Et) <- weight[,2]
+for (j in 1:26){
+  for (i in j:26){
+    Et[i+1,j] <- Et[i,j] + weight[i+1,2]*FlowCon[i+1,j]
+  }
+}
+w <- diag(Et)/Et * FlowCon
+con <- w[lower.tri(w)]
+w <- t(w)
+w[lower.tri(w)] <- con
+# 第一列
+
+is.positive.definite(w)
+
+library(matrixcalc)

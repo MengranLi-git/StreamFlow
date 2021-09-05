@@ -1,4 +1,4 @@
-fit_linear <- function(x, mu, sig, sh, para=c("double", "single", "s")) {
+fit_linear <- function(x, mu, sig, sh, year = 40, para=c("double", "single", "s")) {
   co <- data.frame(mu = NA, sig = NA, sh = NA)
   n <- 1
   for (i in 1:3) {
@@ -80,9 +80,9 @@ fit_linear <- function(x, mu, sig, sh, para=c("double", "single", "s")) {
       fit <- gev.fit(x, y, mul = mul, sigl = sigl, shl = shl,siglink = exp, siginit = siginit, show = FALSE)
       fit[["AIC"]] <- 2 * (length(fit$mle) + fit$nllh)
       fit[["formulation"]] <- com
-      fit[["est_mu"]] <- CI(as.matrix(cbind(rep(1, 40), ll_mu[[2]])), fit$mle[loc_mu], fit$cov[loc_mu, loc_mu])
-      fit[["est_sig"]] <- CI(as.matrix(cbind(rep(1, 40), ll_sig[[2]])), fit$mle[loc_sig], fit$cov[loc_sig, loc_sig])
-      fit[["est_sh"]] <- CI(as.matrix(cbind(rep(1, 40), ll_sh[[2]])), fit$mle[loc_sh], fit$cov[loc_sh, loc_sh])
+      fit[["est_mu"]] <- CI(as.matrix(cbind(rep(1, year), ll_mu[[2]])), fit$mle[loc_mu], fit$cov[loc_mu, loc_mu])
+      fit[["est_sig"]] <- CI(as.matrix(cbind(rep(1, year), ll_sig[[2]])), fit$mle[loc_sig], fit$cov[loc_sig, loc_sig])
+      fit[["est_sh"]] <- CI(as.matrix(cbind(rep(1, year), ll_sh[[2]])), fit$mle[loc_sh], fit$cov[loc_sh, loc_sh])
       name <- paste0("fit", i )
       assign(name, fit)
     }

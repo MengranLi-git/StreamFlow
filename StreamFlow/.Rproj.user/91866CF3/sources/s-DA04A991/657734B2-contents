@@ -1,0 +1,423 @@
+---
+title: "Extremes on River Networks"
+author: "Mengran Li"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, comment = NA, message = FALSE, warning = FALSE, eval=TRUE)
+```
+
+# Data
+
+```{r, include=FALSE}
+library(EGRET)
+library(dataRetrieval)
+library(tidyverse)
+library(leaflet)
+library(rgeos)
+library(data.table)
+library(kableExtra)
+
+load("F:/StreamFlow/joint_fitting/joint.Rdata")
+
+bound <- sf::st_read(dsn = "F:/StreamFlow/wbdhu2_a_us_september2020.gdb")
+
+GetURL <- function(service, host = "basemap.nationalmap.gov") {
+  sprintf("https://%s/arcgis/services/%s/MapServer/WmsServer", host, service)
+}
+
+```
+
+.pull-left[
+```{r}
+bound %>% filter(huc2=="07") %>%
+  leaflet(width = "100%") %>%
+  #  setView(lng = -95, lat = 40, zoom = 4) %>%
+  addCircleMarkers(
+    data = new %>% mutate(index = 1:27),
+    lng = ~dec_long_va,
+    lat = ~dec_lat_va,
+    radius = ~3,
+    label = ~ htmltools::htmlEscape(index),
+    labelOptions = labelOptions(noHide = T, direction = 'top', textOnly = T),
+    stroke = FALSE,
+    fill = TRUE,
+    color = "red",
+    fillOpacity = 0.4,
+  )  %>%
+  addWMSTiles(GetURL("USGSHydroCached"), layers = "0")
+```
+]
+
+.pull-right[
+
+Daily discharge from 27 gauging stations on 6 rivers during 1980-2020.
+
+|River|Number of Stations|
+|---|---|
+|Mississippi River| 8 stations|
+|Des Moines River| 5 stations|
+|Illinois River| 3 stations|
+|Iowa River| 5 stations|
+|Minnesota River| 4 stations|
+|Wapsipinicon River| 2 stations|
+
+We selected data in `June, July and August`. The annual maxima occurred in these three months. Thus **N = 40×92 = 3680**, that is, 40 years of 92 daily observations
+in each station.
+]
+
+---
+# Aim and Framework
+
+## Aim
+
+Study the dependence in the river network
+
+## Framework
+
+- Exploratory data analysis to check the data pattern
+
+- Marginal fitting to check the trend
+
+- Declustering to eliminate temporal cluster and exact flood events
+
+- Joint fitting to check the asymptotic dependence
+
+  - Extremal coffecients based on madogram
+  
+  - Extremal coffecients based on bivariate Hüsler–Reiss distribution
+  
+  - Hydrological distances and Euclidean distances
+
+---
+
+# EDA
+
+```{r, fig.height=4}
+data <- data %>% filter(Month %in% 6:8)
+data$station <- rep(new$site_no,each = 3680)
+data <- data[Q >= 0]
+
+data_plot <- data[, c("station", "Q", "DecYear", "Month")]
+
+data_plot$Month <- as.factor(data_plot$Month)
+
+data_plot %>% group_by(DecYear, Month) %>%
+  summarise(meanQ=mean(Q)) %>% 
+  ggplot(aes(x=DecYear,y=meanQ,group=Month, color = Month), color = Month)+
+  geom_line()
+```
+
+-  We explored the annual mean discharges grouped by month. 
+
+-  The plot shows that there is no obvious trend, except that it was unusually high in 1992. 
+
+-  The annual mean discharges grouped by stations also have no obvious trends.
+
+---
+
+# Marginal Fitting
+
+Before fitting the multivariate dependence model, we assess the univariate tail behaviour at individual gauging stations
+
+.pull-left[
+- To check the dependence 
+
+- To obtain the constants $\mu,\ \sigma,\ \xi$
+
+```{r}
+maxi <- data %>% 
+  group_by(station, DecYear) %>% 
+  summarise(maxQ=max(Q))
+
+maxi %>%
+  filter(station == "05211000") %>% 
+  dplyr::select(DecYear, maxQ) %>% 
+  head() %>%
+  kable()
+```
+]
+
+.pull-right[
+
+- We take the annual maxima and fit the GEV model.
+
+- We fit the stationary model, single trend model and double trend model, respectively.
+
+- We use the AIC as the model selection criteria and use the likelihood ratio test to check the significance. 
+
+- The results show that the stationary models are best for all stations.
+]
+
+
+---
+
+# Decluster
+
+```{r}
+source("F:/Extre/Codes/Functions.R")
+## extraction of events
+data <- data %>% select(Date, Q)
+data$station <- rep(new$site_no,each = 3680)
+data <- data %>% spread(station, Q)
+
+StsChos <- c(1:27)
+NoSt <- length(StsChos)
+
+Years <- unique(as.numeric(substr(data$Date,1,4)))
+StNames <- as.character(StsChos)
+YearsWithEvent <- numeric()
+AllEvMat <- matrix(0,length(StNames),1)
+AllRes <- list()
+for (i in 1:length(Years)){
+  # events in the i^th year at each station
+  Res <- ObtainMultVarEvents(TSs=data,U=0.1,Lag=4,Year=Years[i],StNames=StNames,Plotting=0,mfrow=c(NoSt,1))  ## For Censored Likelihood
+  Events <- Res$AllEvMat
+  Locations <- Res$Location
+  if (length(Events)>0) {
+    YearsWithEvent <- c(YearsWithEvent,rep(Years[i],dim(Events)[2]))
+    AllEvMat <- cbind(AllEvMat,Events)
+  }
+  AllRes[[i]] <- Res 
+}
+
+DataEvents <- t(AllEvMat[,-1])
+rownames(DataEvents) <- YearsWithEvent
+```
+
+Extreme discharges at a given station occur in clusters due to temporal dependence, which must be removed for spatial modelling.
+
+This step is to remove the clusters due to temporal dependence and identify the flood events for gauging stations to check the dependence.
+
+1. To identify nonoverlapping windows of length $p$ days in each of the 40 summer periods.
+
+2. To consider the day with the highest rank across all 27 series
+
+3. To take a window of p days centred upon the chosen day and form an event by taking the largest observation for each series within this window
+
+4. To delete the data in this window and then repeat the process of forming events, stopping when no windows of p consecutive days remain
+
+---
+# Flood Events
+
+.pull-left[
+```{r}
+head(DataEvents[,1:3],20) %>% kable()%>%
+  kable_styling(full_width = F)
+```
+]
+
+.pull-right[
+
+For example, there are 9 flood events in 1980. We extract the data at each 27 station in the same day.
+
+
+There are 356 events during the 40 years, thus the number of event data is $356\times27=9612$
+
+]
+
+
+---
+# Joint Fitting
+
+- asymptotic dependence
+
+- extremal coefficients $\hat\theta$, Madogram-based estimates
+
+- extremal coefficients $\hat\theta_{HR}$, fit the bivariate Hüsler–Reiss distribution
+
+Hüsler–Reiss distribution approximates the extremal dependence of the data well.
+
+We apply the `Hydrological distances` and `Euclidean distances`.
+
+The coordinates of altitude weighted center at stations 14, 15, 16 are abnormal, and the three stations are out of the main stream, thus we remove the three stations.
+
+---
+# Extreme Coffecients for Hüsler–Reiss 
+```{r}
+DataEvents <- DataEvents[,-c(14:16)]
+```
+
+.pull-left[
+
+## Hydrological distance
+
+```{r, include=FALSE}
+CW <- read.csv("weight.csv")
+CatchtrWt <- CW %>% select(wx,wy)
+p <- cbind(CatchtrWt$wy, CatchtrWt$wx)
+library(SpatialExtremes)
+library(geosphere)
+RiverDisWt <- distm(p, p, fun = distHaversine)
+RiverDisWt <- RiverDisWt/1000
+
+FlowCon <- read.csv("F:/StreamFlow/joint_fitting/FlowCon.csv",header = FALSE)
+FlowCon <- FlowCon[-c(14:16),-c(14:16)]
+con <- FlowCon[lower.tri(FlowCon)]
+FlowCon <- t(FlowCon)
+FlowCon[lower.tri(FlowCon)] <- con
+```
+
+```{r, include=FALSE}
+locations <- new %>% select(dec_long_va, dec_lat_va)
+locations <- as.matrix(locations[-c(14:16),])
+colnames(locations) <- c("lon", "lat")
+library(SpatialExtremes)
+##Compute the madogram
+theta2 <- madogram(DataEvents, locations)
+theta <- madogram(DataEvents, as.matrix(RiverDisWt))
+```
+
+```{r,fig.width=8,fig.height=6}
+Theta.cen <- matrix(1,ncol = 24,nrow = 24)
+for(i in 1:(24-1))
+  for(j in (i+1):24) {
+    Data.biv <- DataEvents[,c(i,j)]
+    Theta.cen[i,j] <- CensoredEstimationHR(Data.biv, thresholds = .90)
+    Theta.cen[j,i] <- Theta.cen[i,j]
+  }
+Theta <- Theta.cen
+Theta <- Theta[lower.tri(Theta)]
+dist <- theta[,1]
+Theta <- data.frame(Theta, dist)
+Theta$group <- con
+Theta <- Theta %>% mutate(
+  group = ifelse(group==1, "connected", "unconnected")
+)
+
+ggplot(data = Theta[-c(103,121),]) + 
+  geom_point(aes(x = dist, y=Theta, color = as.factor(group)),size = 2) +
+#  coord_fixed(ratio = 10) +
+  ylim(c(1,2))
+```
+]
+
+.pull-right[
+
+## Euclidean distance
+
+```{r,fig.width=8,fig.height=6}
+Theta2 <- Theta.cen
+Theta2 <- Theta2[lower.tri(Theta2)]
+dist <- theta2[,1]*100
+Theta2 <- data.frame(Theta2, dist)
+Theta2$group <- con
+Theta2 <- Theta2 %>% mutate(
+  group = ifelse(group==1, "connected", "unconnected")
+)
+
+ggplot(data = Theta2[-c(103,121),]) + 
+  geom_point(aes(x = dist, y=Theta2, color = as.factor(group)),size = 2) +
+#  coord_fixed(ratio = 10) +
+  ylim(c(1,2))
+```
+
+]
+
+The connected and unconnected pairs can be separated more clearly in hydrological distances than in Euclidean distances 
+
+---
+# Extreme Coffecients for madogram
+
+.pull-left[
+
+## Hydrological distance
+
+```{r,include=FALSE}
+m <- matrix(NA, ncol = 24, nrow = 24)
+m[lower.tri(m)] <- 1:276
+
+theta <- madogram(DataEvents, as.matrix(RiverDisWt))
+```
+
+```{r, fig.width=8,fig.height=6}
+theta <- as.data.frame(theta)
+theta$group <- con
+
+theta <- theta %>% mutate(
+  group = ifelse(group==1, "connected", "unconnected")
+)
+
+ggplot(data = theta[-c(103,121),]) + 
+  geom_point(aes(x = dist, y=ext.coeff, color = as.factor(group)),size = 2) +
+#  coord_fixed(ratio = 10) +
+  ylim(c(1,2))
+
+```
+]
+
+.pull-right[
+
+## Euclidean distance
+
+```{r, fig.width=8,fig.height=6}
+theta2 <- as.data.frame(theta2)
+theta2$group <- con
+
+theta2 <- theta2 %>% mutate(
+  group = ifelse(group==1, "connected", "unconnected")
+)
+
+ggplot(data = theta2[-c(103,121),]) + 
+  geom_point(aes(x = dist, y=ext.coeff, color = as.factor(group)),size = 2) +
+#  coord_fixed(ratio = 10) +
+  ylim(c(1,2))
+```
+]
+
+---
+# Madogram vs HR
+
+.pull-left[
+```{r}
+m2 <- matrix(NA, 24, 24)
+m2[lower.tri(m2)] <- theta[,3]
+
+m2 <- t(m2)
+m2[lower.tri(m2)] <- theta[,3]
+diag(m2) <- 1
+
+plotECF(ECemp = m2,
+        ECtheo = Theta.cen,
+        Dist = RiverDisWt,
+        is.con = FlowCon,
+        StsIdx  = StsChos,
+        which.plots = c(FALSE,FALSE,TRUE),
+        which.labels = c(FALSE, FALSE,FALSE),
+        PDF = FALSE,
+        filename = paste("Plots","ECF_Emp_HR.pdf",sep="/"))
+```
+]
+
+.pull-right[
+
+- Blue crosses: flow-connected pairs
+
+- Black circles: flow-unconnected pairs
+
+- Empirical: Madogram
+
+- Fitted Model: HR
+
+The estimations of Madogram are smaller than those of HR in hydrological distance.
+
+]
+
+
+
+
+
+
+
+
+
+

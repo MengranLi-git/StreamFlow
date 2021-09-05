@@ -1,0 +1,148 @@
+---
+title: "Extremes on River Networks"
+author: "Mengran Li"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+# River Network
+
+- $D_i$: index set of river segments downstream of $t_i$
+
+- river connected: $D_i \subseteq D_j$ or $D_j \subseteq D_i$
+
+- river distance $d(t_1, t_2)$: shortest distance along the river network
+
+### Distance
+
+- River distance: 
+
+$$\Gamma_{Riv}(t_i,t_j)=1-\prod{\sqrt\pi(1-d(t_i,t_j)/\tau)}$$
+
+- Hydrological distance:
+
+$$\Gamma_{Euc}(t_i,t_j)=\Vert R·H(t_i)-R·H(t_j)\Vert$$
+$H(t)$: altitude weighted centroid
+
+$R$: anisotropy matrix 
+---
+
+# Event
+
+### Declustering
+
+- replace each observation by its rank within its series
+
+- consider the day with the highest rank across all series
+
+- choosing this day randomly if it is not unique 
+
+- take a window of p days centred upon the chosen day, and form an event by taking the largest
+observation for each series within this window
+
+- delete the data in this window
+
+repeat the process of forming events
+  
+stopping when no windows of p consecutive days remain.
+
+$Y_{4600\times31}$ (31 stations, 50 years (Jun, July, Aug), 4600 days) $\to$ $Y_{428\times31}$
+
+---
+
+# Marginal Fitting
+
+Model 1:
+
+- GEVD to estimate $\mu,\sigma,\xi$
+
+- take the estimation as initial value to fit joint poisson process
+
+the basin can be split into 4 regions.
+
+Model 2: 
+
+-  Covariate: latitude, size, mean altitude, mean slope (significant, LLR test)
+
+-  Region 1, 2, 3, 4
+
+Compare
+
+M1: $31\times3=93$   M2: $4\times7=28$
+
+marginal fitting to ungauged locations on the network
+
+Computation return levels throughout river network
+
+---
+
+# Joint Fitting
+
+- asymptotic dependence
+
+- extremal coefficients $\hat\theta$, Madogram-based estimates
+
+- extremal coefficients $\hat\theta_{HR}$, fit the bivariate Hüsler–Reiss distribution
+
+Hüsler–Reiss distribution approximates the extremal dependence of the data well.
+
+1. Marginal empirical distribution functions to transform the distribution at each gauging station to standard Pareto
+
+1. Fitting of the max-stable process on river network
+
+---
+
+# Joint Fitting
+
+$\Gamma_1:$ the stationary variogram based on Euclidean distances with anisotropy matrix
+
+$$\Gamma_1(s,t)=\Vert R·(s-t)\Vert$$
+
+$\Gamma_2:$ a variogram using the transformation H to hydrological locations
+
+$$\Gamma_2(s,t)=\Vert R·\{H(s)-H(t)\}\Vert$$
+
+$\Gamma_3:$ a variogram that includes the hydrological properties of the river network for flow-connected locations
+
+$$\Gamma_3(s,t)=\lambda\Gamma_{Riv}(s,t)+\lambda_{Euc}\Vert R·H(t)-R·H(s)\Vert^\alpha$$
+
+$\Gamma_4:$  without anisotropy
+
+$$\Gamma_4(s,t)=\lambda\Gamma_{Riv}(s,t)+\lambda_{Euc}\Vert H(t)-H(s)\Vert^\alpha$$
+
+---
+
+# Joint Fitting
+
+   - spectral estimation $\hat\theta_{SPEC}$ as initial value
+
+   - censored estimation $\hat\theta_{CENS}$
+
+process $\eta_\Gamma$; exponent measure $V_{\Gamma,t}$
+
+Groups of 3, 5, 15, 31 stations
+
+transform the standard Frechet margins to GEVD and compute data quantiles
+
+---
+
+# Our data
+
+- Replace precipitation with altitude
+
+- Define river network
+
+- Covariate
+
+

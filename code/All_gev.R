@@ -145,7 +145,7 @@ plot_final[["legend"]] <- FALSE
 # save(plot_final,file = "best.Rdata")
 do.call(ggarrange, plot_final)
 
-ggsave("first.png", plot = last_plot(), width = 6, height = 8)
+ggsave("third_sh.png", plot = last_plot(), width = 6, height = 8)
 
 plot_final <- list()
 for (i in 7:12) {

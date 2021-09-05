@@ -1,0 +1,28 @@
+{
+    "id": "C1AB9787",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1629708728851.0,
+    "source_on_save": false,
+    "relative_order": 7,
+    "properties": {
+        "id": "c21addac879143d99315e6d3a018199c",
+        "name": "AllEvents",
+        "title": "AllEvents",
+        "language": "R",
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 3474298832360256866,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1629708728851,
+    "read_only": false,
+    "read_only_alternatives": []
+}

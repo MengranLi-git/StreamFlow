@@ -1,0 +1,77 @@
+
+# location
+locations <- new %>% select(dec_long_va, dec_lat_va)
+locations <- as.matrix(locations)
+colnames(locations) <- c("lon", "lat")
+
+##Simulate a max-stable process - with unit Frechet margins
+
+
+library(SpatialExtremes)
+
+##Compute the madogram
+theta <- madogram(DataEvents, locations)
+
+data2 <- as.matrix(data[,-(1:2)])
+theta <- madogram(data2, locations)
+
+
+data2 <- data%>% group_by(DecYear, Month,station) %>%summarise(max(Q))
+
+data <- data2 %>% spread(station, `max(Q)`)
+
+
+schlather <- fitmaxstab(DataEvents, locations, "whitmat", nugget = 0)
+
+## 3- Plot the extremal coefficient
+extcoeff(schlather)
+madogram(fitted = schlather, which = "ext")
+
+
+m2 <- matrix(NA, 27, 27)
+m2[lower.tri(m2)] <- theta[,3]
+
+m2 <- t(m2)
+m2[lower.tri(m2)] <- theta[,3]
+diag(m2) <- 1
+
+plotECF(ECemp = m2,
+        ECtheo = Theta.cen,
+        Dist = CatchEucDisWt,
+        is.con = FlowCon,
+        StsIdx  = StsChos,
+        which.plots = c(FALSE,FALSE,TRUE),
+        which.labels = c(FALSE, FALSE,FALSE),
+        PDF = FALSE,
+        filename = paste("Plots","ECF_Emp_HR.pdf",sep="/"))
+
+
+CatchEucDisWt <- as.matrix(dist((locations)))
+
+
+FlowCon <- read.csv("F:/StreamFlow/joint_fitting/FlowCon.csv",header = FALSE)
+
+con <- FlowCon[lower.tri(FlowCon)]
+
+FlowCon <- t(FlowCon)
+FlowCon[lower.tri(FlowCon)] <- con
+
+
+theta <- as.data.frame(theta)
+
+theta$group <- con
+
+theta2 <- Theta.cen[lower.tri(Theta.cen)]
+
+theta2 <- as.data.frame(theta2)
+
+theta2$dist <- CatchEucDisWt[lower.tri(CatchEucDisWt)]
+theta2$group <- con
+
+plot(theta$dist, theta$ext.coeff, color = as.factor(theta$group))
+
+ggplot(data = theta) + 
+  geom_point(aes(x = dist, y=ext.coeff, color = as.factor(group)))
+
+
+
